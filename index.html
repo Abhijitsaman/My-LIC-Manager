@@ -1,0 +1,906 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My LIC Manager - Firebase Edition</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ==========================================================================
+           1. GLOBAL STYLES & VARIABLES
+           ========================================================================== */
+        :root {
+            --primary-color: #005A9C; /* LIC's official blue */
+            --secondary-color: #00AEEF; /* A lighter, vibrant blue */
+            --bg-color: #f4f7f9;
+            --card-bg-color: #ffffff;
+            --text-color: #333333;
+            --text-light-color: #6c757d;
+            --border-color: #e0e0e0;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e9ebee;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem 0;
+        }
+
+        /* ==========================================================================
+           2. APP CONTAINER & PAGE STRUCTURE
+           ========================================================================== */
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 850px;
+            max-height: 90vh;
+            background-color: var(--bg-color);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .page-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .page-header .header-text {
+            flex-grow: 1;
+        }
+        
+        .page-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* ==========================================================================
+           3. SPLASH SCREEN & AUTHENTICATION
+           ========================================================================== */
+        #splash-screen {
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        #splash-screen .logo {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow);
+            animation: popIn 0.8s ease-out;
+        }
+        
+        #splash-screen .logo svg {
+            width: 60px;
+            height: 60px;
+            color: var(--primary-color);
+        }
+
+        #splash-screen h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+
+        /* ==========================================================================
+           4. WELCOME PAGE
+           ========================================================================== */
+        #welcome-page {
+            justify-content: space-between;
+            text-align: center;
+            background-color: white;
+        }
+
+        .welcome-content {
+            padding: 2rem;
+        }
+        
+        .welcome-content .app-icon {
+            margin: 2rem auto;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .welcome-content .app-icon svg {
+            width: 70px;
+            height: 70px;
+            color: white;
+        }
+        
+        .welcome-content h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .feature-list {
+            margin-top: 2rem;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature-item .icon {
+            width: 45px;
+            height: 45px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-color);
+            flex-shrink: 0;
+        }
+
+        .feature-item .icon svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .feature-item p {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .welcome-footer {
+            padding: 2rem;
+            width: 100%;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 90, 156, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 90, 156, 0.4);
+        }
+        
+        .btn-logout {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-logout:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ==========================================================================
+           5. ADD POLICY FORM PAGE
+           ========================================================================== */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light-color);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.15);
+        }
+        
+        input[type="date"] {
+            position: relative;
+        }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.7;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ==========================================================================
+           6. DASHBOARD PAGE
+           ========================================================================== */
+        #dashboard-page {
+            position: relative;
+        }
+        
+        .upcoming-premium-card {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: background 0.5s ease;
+        }
+
+        .upcoming-premium-card.warning {
+             background: linear-gradient(135deg, #ffc107, #ff9800);
+        }
+
+        .upcoming-premium-card.danger {
+            background: linear-gradient(135deg, #dc3545, #b22222);
+        }
+        
+        .upcoming-premium-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+        
+        .upcoming-premium-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upcoming-premium-card .policy-details {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        #policy-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .policy-card {
+            background-color: var(--card-bg-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--primary-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .policy-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .policy-info h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .policy-info p {
+            font-size: 0.85rem;
+            color: var(--text-light-color);
+        }
+
+        .policy-due {
+            text-align: right;
+        }
+        
+        .policy-due .amount {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .policy-due .date {
+            font-size: 0.85rem;
+            color: var(--text-light-color);
+        }
+        
+        #investment-chart-container {
+            background-color: var(--card-bg-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        #investment-chart-container .chart-title {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        #total-investment-text {
+            position: absolute;
+            top: 58%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        #total-investment-text .amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        #total-investment-text .label {
+            font-size: 0.9rem;
+            color: var(--text-light-color);
+        }
+
+        #add-policy-fab {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 90, 156, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        #add-policy-fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 25px rgba(0, 90, 156, 0.5);
+        }
+
+        /* ==========================================================================
+           7. NOTIFICATION BAR & EMPTY STATE
+           ========================================================================== */
+        #notification-bar {
+            position: absolute;
+            top: -100px; /* Initially hidden */
+            left: 5%;
+            width: 90%;
+            padding: 1rem;
+            background-color: var(--warning-color);
+            color: #333;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            z-index: 2000;
+            text-align: center;
+            font-weight: 500;
+            transition: top 0.5s ease-in-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #notification-bar.show {
+            top: 1rem;
+        }
+
+        #notification-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: #333;
+            opacity: 0.7;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light-color);
+        }
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .empty-state h3 {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- PAGE 1: SPLASH SCREEN -->
+        <div id="splash-screen" class="page active">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5z"/></svg>
+            </div>
+            <h1>My LIC Manager</h1>
+        </div>
+
+        <!-- PAGE 2: WELCOME / LOGIN PAGE -->
+        <div id="welcome-page" class="page">
+            <div class="welcome-content">
+                <div class="app-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                </div>
+                <h2>Welcome!</h2>
+                <p style="color: var(--text-light-color);">Manage your LIC policies effortlessly.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg></div>
+                        <p>Never miss a premium due date</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.09-4-4L2 16.99z"/></svg></div>
+                        <p>Track your policy growth</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+                        <p>All your policies in one place</p>
+                    </div>
+                </div>
+            </div>
+            <div class="welcome-footer">
+                <button id="login-btn" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg>
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+        
+        <!-- PAGE 3: ADD NEW POLICY FORM -->
+        <div id="add-policy-page" class="page">
+            <div class="page-header">
+                <div class="header-text">
+                    <h1>Add New Policy</h1>
+                    <p>Fill in the details of your new policy.</p>
+                </div>
+            </div>
+            <div class="page-content">
+                <form id="add-policy-form">
+                    <div class="form-group"><label for="policyHolderName">Policy Holder Name</label><input type="text" id="policyHolderName" required></div>
+                    <div class="form-group"><label for="policyNumber">Policy Number</label><input type="text" id="policyNumber" required></div>
+                    <div class="form-group"><label for="planName">Plan Name</label><input type="text" id="planName" required></div>
+                    <div class="form-group"><label for="premiumAmount">Premium Amount (₹)</label><input type="number" id="premiumAmount" required></div>
+                    <div class="form-group"><label for="premiumFrequency">Premium Frequency</label><select id="premiumFrequency" required><option value="Monthly">Monthly</option><option value="Quarterly">Quarterly</option><option value="Half-yearly">Half-yearly</option><option value="Yearly">Yearly</option></select></div>
+                    <div class="form-group"><label for="nextPremiumDueDate">Next Premium Due Date</label><input type="date" id="nextPremiumDueDate" required></div>
+                    <div class="form-group"><label for="policyStartDate">Policy Start Date</label><input type="date" id="policyStartDate" required></div>
+                    <div class="form-group"><label for="policyTerm">Policy Term (in years)</label><input type="number" id="policyTerm" required></div>
+                    <button type="submit" class="btn btn-primary">Save Policy</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAGE 4: DASHBOARD -->
+        <div id="dashboard-page" class="page">
+            <div id="notification-bar"><span id="notification-text"></span><button id="notification-close-btn">×</button></div>
+            <div class="page-header">
+                <div class="header-text">
+                    <h1>Dashboard</h1>
+                    <p id="dashboard-welcome-message">Your financial overview at a glance.</p>
+                </div>
+                <button id="logout-btn" class="btn-logout">Logout</button>
+            </div>
+            <div class="page-content">
+                <div id="dashboard-content">
+                    <!-- Dashboard content will be rendered here by JS -->
+                </div>
+            </div>
+            <button id="add-policy-fab">+</button>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDKs (Compat version for easier transition) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- 1. FIREBASE INITIALIZATION ---
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVlUVeFjPv0NsrM2P0PdIHEH67E9oHNuU",
+            authDomain: "my-lic-manager.firebaseapp.com",
+            projectId: "my-lic-manager",
+            storageBucket: "my-lic-manager.firebasestorage.app",
+            messagingSenderId: "308816801914",
+            appId: "1:308816801914:web:c7d99398f237f73b14cbc3"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Firebase Services
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // --- 2. GLOBAL VARIABLES & ELEMENT DECLARATIONS ---
+        let currentUser = null;
+        let policyDataUnsubscribe = null; // To stop listening for data on logout
+        let investmentChart = null;
+
+        const pages = {
+            splash: document.getElementById('splash-screen'),
+            welcome: document.getElementById('welcome-page'),
+            addPolicy: document.getElementById('add-policy-page'),
+            dashboard: document.getElementById('dashboard-page'),
+        };
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const addPolicyForm = document.getElementById('add-policy-form');
+        const addPolicyFab = document.getElementById('add-policy-fab');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const dashboardWelcomeMsg = document.getElementById('dashboard-welcome-message');
+        const notificationBar = document.getElementById('notification-bar');
+        const notificationText = document.getElementById('notification-text');
+        const notificationCloseBtn = document.getElementById('notification-close-btn');
+
+        // --- 3. CORE APP LOGIC & AUTHENTICATION ---
+        
+        // Listen for authentication state changes
+        auth.onAuthStateChanged(user => {
+            // Hide splash screen after 2.5 seconds, then decide page
+            setTimeout(() => {
+                if (user) {
+                    // User is signed in
+                    currentUser = user;
+                    dashboardWelcomeMsg.textContent = `Welcome, ${user.displayName.split(' ')[0]}!`;
+                    fetchAndRenderPolicies(user.uid);
+                    showPage('dashboard');
+                } else {
+                    // User is signed out
+                    currentUser = null;
+                    if (policyDataUnsubscribe) {
+                        policyDataUnsubscribe(); // Stop listening to old user's data
+                    }
+                    dashboardContent.innerHTML = ''; // Clear dashboard
+                    showPage('welcome');
+                }
+            }, 2500); // Keep splash screen for 2.5s
+        });
+
+        function showPage(pageId) {
+            Object.values(pages).forEach(page => page.classList.remove('active'));
+            if (pages[pageId]) {
+                pages[pageId].classList.add('active');
+            }
+        }
+
+        // --- 4. FIRESTORE DATA MANAGEMENT ---
+
+        function fetchAndRenderPolicies(userId) {
+            const policiesCollection = db.collection('users').doc(userId).collection('policies');
+            
+            // Listen for real-time updates using onSnapshot
+            policyDataUnsubscribe = policiesCollection.onSnapshot(snapshot => {
+                const policies = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                renderDashboard(policies);
+            }, error => {
+                console.error("Error fetching policies: ", error);
+                dashboardContent.innerHTML = `<p>Could not fetch policy data. Please try again later.</p>`;
+            });
+        }
+
+        function saveNewPolicy(policyData) {
+            if (!currentUser) {
+                alert("You must be logged in to save a policy.");
+                return;
+            }
+            db.collection('users').doc(currentUser.uid).collection('policies').add(policyData)
+                .then(() => {
+                    console.log("Policy successfully added!");
+                    addPolicyForm.reset();
+                    showPage('dashboard');
+                })
+                .catch(error => {
+                    console.error("Error adding policy: ", error);
+                    alert("There was an error saving your policy. Please try again.");
+                });
+        }
+
+        // --- 5. EVENT LISTENERS ---
+
+        loginBtn.addEventListener('click', () => {
+            auth.signInWithPopup(provider).catch(error => console.error("Sign in error", error));
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut().catch(error => console.error("Sign out error", error));
+        });
+
+        addPolicyFab.addEventListener('click', () => showPage('addPolicy'));
+        
+        notificationCloseBtn.addEventListener('click', () => notificationBar.classList.remove('show'));
+
+        addPolicyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newPolicy = {
+                holderName: document.getElementById('policyHolderName').value.trim(),
+                policyNumber: document.getElementById('policyNumber').value.trim(),
+                planName: document.getElementById('planName').value.trim(),
+                premiumAmount: parseFloat(document.getElementById('premiumAmount').value),
+                frequency: document.getElementById('premiumFrequency').value,
+                dueDate: document.getElementById('nextPremiumDueDate').value,
+                startDate: document.getElementById('policyStartDate').value,
+                term: parseInt(document.getElementById('policyTerm').value),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() // Good practice
+            };
+            saveNewPolicy(newPolicy);
+        });
+
+        // --- 6. DASHBOARD RENDERING & LOGIC (largely unchanged, now receives data) ---
+
+        function renderDashboard(policies) {
+            if (policies.length === 0) {
+                dashboardContent.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"/></svg>
+                        <h3>No Policies Found</h3>
+                        <p>Click the '+' button to add your first policy.</p>
+                    </div>`;
+                return;
+            }
+
+            policies.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+            dashboardContent.innerHTML = `
+                ${renderUpcomingPremiumCard(policies)}
+                <h2 class="section-title">All Policies</h2>
+                <div id="policy-list">${renderPolicyList(policies)}</div>
+                <div id="investment-chart-container">
+                     <h2 class="chart-title">Total Investment Overview</h2>
+                     <canvas id="investmentChart" height="250"></canvas>
+                     <div id="total-investment-text"></div>
+                </div>`;
+            
+            renderInvestmentChart(policies);
+            checkNotifications(policies);
+        }
+
+        function renderUpcomingPremiumCard(policies) {
+            const upcomingPolicy = policies[0];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dueDate = new Date(upcomingPolicy.dueDate);
+            const diffTime = dueDate.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            let cardClass = '', message = '';
+            if (diffDays < 0) {
+                message = `Premium was due ${Math.abs(diffDays)} days ago`; cardClass = 'danger';
+            } else if (diffDays === 0) {
+                message = "Premium is due Today!"; cardClass = 'danger';
+            } else if (diffDays <= 7) {
+                message = `Next premium in ${diffDays} days`; cardClass = 'danger';
+            } else if (diffDays <= 15) {
+                message = `Next premium in ${diffDays} days`; cardClass = 'warning';
+            } else {
+                message = `Next premium in ${diffDays} days`;
+            }
+
+            return `<div class="upcoming-premium-card ${cardClass}"><p>UPCOMING PAYMENT</p><h3>${message}</h3><div class="policy-details">For Policy No. <strong>${upcomingPolicy.policyNumber}</strong></div></div>`;
+        }
+        
+        function renderPolicyList(policies) {
+            return policies.map(policy => `
+                <div class="policy-card">
+                    <div class="policy-info"><h4>${policy.holderName}</h4><p>${policy.planName} (${policy.policyNumber})</p></div>
+                    <div class="policy-due"><div class="amount">₹${policy.premiumAmount.toLocaleString('en-IN')}</div><div class="date">Due: ${new Date(policy.dueDate).toLocaleDateString('en-GB')}</div></div>
+                </div>`).join('');
+        }
+
+        function renderInvestmentChart(policies) {
+            const ctx = document.getElementById('investmentChart')?.getContext('2d');
+            if(!ctx) return;
+
+            let totalInvestment = 0;
+            const chartData = {
+                labels: [],
+                datasets: [{ data: [], backgroundColor: ['#005A9C', '#00AEEF', '#4caf50', '#ff9800', '#f44336', '#9c27b0'], borderColor: 'var(--card-bg-color)', borderWidth: 4, hoverOffset: 10 }]
+            };
+            
+            policies.forEach(policy => {
+                const investmentInPolicy = calculateInvestmentForPolicy(policy);
+                totalInvestment += investmentInPolicy;
+                chartData.labels.push(policy.planName || 'Policy');
+                chartData.datasets[0].data.push(investmentInPolicy);
+            });
+            
+            const totalInvestmentText = document.getElementById('total-investment-text');
+            totalInvestmentText.innerHTML = `<div class="amount">₹${totalInvestment.toLocaleString('en-IN')}</div><div class="label">Total Invested</div>`;
+            
+            if(investmentChart) investmentChart.destroy();
+            investmentChart = new Chart(ctx, {
+                type: 'doughnut', data: chartData, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.label}: ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(c.parsed)}` } } } }
+            });
+        }
+        
+        function calculateInvestmentForPolicy(policy) {
+            const today = new Date();
+            const startDate = new Date(policy.startDate);
+            if (isNaN(startDate.getTime())) return 0; // Invalid date
+            const monthsElapsed = (today.getFullYear() - startDate.getFullYear()) * 12 + (today.getMonth() - startDate.getMonth());
+            let premiumsPaid = 0;
+            switch(policy.frequency) {
+                case 'Monthly': premiumsPaid = monthsElapsed; break;
+                case 'Quarterly': premiumsPaid = Math.floor(monthsElapsed / 3); break;
+                case 'Half-yearly': premiumsPaid = Math.floor(monthsElapsed / 6); break;
+                case 'Yearly': premiumsPaid = Math.floor(monthsElapsed / 12); break;
+            }
+            return Math.max(0, premiumsPaid) * policy.premiumAmount;
+        }
+
+        function checkNotifications(policies) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const upcomingDuePolicy = policies.find(p => {
+                const dueDate = new Date(p.dueDate);
+                const diffDays = (dueDate - today) / (1000 * 60 * 60 * 24);
+                return diffDays >= 0 && diffDays <= 7;
+            });
+            if (upcomingDuePolicy) {
+                const dueDate = new Date(upcomingDuePolicy.dueDate);
+                const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                notificationText.textContent = `Reminder: Premium for Policy ${upcomingDuePolicy.policyNumber} is due in ${diffDays === 0 ? 'Today' : diffDays + ' days'}.`;
+                notificationBar.classList.add('show');
+            } else {
+                 notificationBar.classList.remove('show');
+            }
+        }
+        
+    });
+    </script>
+</body>
+</html>
