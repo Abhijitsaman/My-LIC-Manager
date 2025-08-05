@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My LIC Manager</title>
     
     <!-- Google Fonts: Poppins -->
@@ -10,21 +10,32 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Chart.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
         /* ==========================================================================
-           1. GLOBAL STYLES & VARIABLES
+           1. GLOBAL STYLES, VARIABLES & DARK MODE
            ========================================================================== */
         :root {
-            --primary-color: #005A9C; /* LIC's official blue */
-            --secondary-color: #00AEEF; /* A lighter, vibrant blue */
-            --bg-color: #f4f7f9;
-            --card-bg-color: #ffffff;
-            --text-color: #333333;
-            --text-light-color: #6c757d;
-            --border-color: #e0e0e0;
+            --primary-color: #005A9C;
+            --secondary-color: #00AEEF;
+            --bg-color-light: #f4f7f9;
+            --card-bg-color-light: #ffffff;
+            --text-color-light: #333333;
+            --text-light-color-light: #6c757d;
+            --border-color-light: #e0e0e0;
+            --header-text-color: #ffffff;
+            
+            --bg-color-dark: #121212;
+            --card-bg-color-dark: #1e1e1e;
+            --text-color-dark: #e0e0e0;
+            --text-light-color-dark: #a0a0a0;
+            --border-color-dark: #333333;
+            
+            --bg-color: var(--bg-color-light);
+            --card-bg-color: var(--card-bg-color-light);
+            --text-color: var(--text-color-light);
+            --text-light-color: var(--text-light-color-light);
+            --border-color: var(--border-color-light);
+
             --success-color: #28a745;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
@@ -32,26 +43,33 @@
             --border-radius: 12px;
         }
 
+        .dark-mode {
+            --bg-color: var(--bg-color-dark);
+            --card-bg-color: var(--card-bg-color-dark);
+            --text-color: var(--text-color-dark);
+            --text-light-color: var(--text-light-color-dark);
+            --border-color: var(--border-color-dark);
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        html {
-            font-size: 16px;
+        html, body {
+            height: 100%;
+            overflow: hidden; /* Prevent body scroll */
         }
-
+        
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #e9ebee;
+            background-color: #000; /* Outer background for desktop view */
             color: var(--text-color);
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 0;
         }
 
         /* ==========================================================================
@@ -60,204 +78,134 @@
         .app-container {
             width: 100%;
             max-width: 420px;
-            height: 100vh; /* Full viewport height */
+            height: 100%;
             background-color: var(--bg-color);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
             position: relative;
             display: flex;
             flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
         }
         
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--header-text-color);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .app-header.selection-mode {
+            background: var(--primary-color);
+        }
+        .header-title { font-size: 1.5rem; font-weight: 600; }
+        .header-icon { background: none; border: none; color: white; cursor: pointer; padding: 0.5rem; }
+        .header-icon svg { width: 26px; height: 26px; }
+
         main {
             flex-grow: 1;
             overflow-y: auto;
             position: relative;
+            /* **FIX:** বটম নেভিগেশন বারের জন্য জায়গা ছাড়া হলো */
+            padding-bottom: 70px;
         }
 
         .page {
             display: none;
             flex-direction: column;
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             opacity: 0;
             animation: fadeIn 0.4s forwards;
-            overflow-y: auto;
-            overflow-x: hidden;
             padding: 1.5rem;
         }
-        
-        .page.active {
-            display: flex;
-        }
-        
-        .page-full { /* For pages without default padding, like the welcome screen */
-             padding: 0;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .page-header {
-            padding: 1.5rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: -1.5rem -1.5rem 1.5rem -1.5rem; /* Make header full-width */
-        }
-        
-        .page-header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-        .page-header p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
+        .page.active { display: flex; }
+        .page-full { padding: 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* ==========================================================================
-           3. NEW: BOTTOM NAVIGATION BAR
+           3. FIXED BOTTOM NAVIGATION BAR
            ========================================================================== */
         .bottom-nav {
             display: flex;
             justify-content: space-around;
             align-items: center;
-            width: 100%;
-            height: 70px;
             background-color: var(--card-bg-color);
             box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
             border-top: 1px solid var(--border-color);
             flex-shrink: 0;
             z-index: 1000;
+            transition: background-color 0.3s, border-color 0.3s;
+            
+            /* **FIX:** বটম নেভিগেশন বারকে ফিক্সড করা হলো */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            max-width: 420px; /* To match app container width */
+            margin: 0 auto;
+            height: 70px;
         }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; color: var(--text-light-color); transition: color 0.3s ease; flex-grow: 1; height: 100%; }
+        .nav-item svg { width: 26px; height: 26px; margin-bottom: 4px; }
+        .nav-item span { font-size: 0.75rem; font-weight: 500; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item:disabled { color: #ccc; cursor: not-allowed; }
 
-        .nav-item {
+        /* ==========================================================================
+           4. SIDEBAR & DARK MODE TOGGLE (NEW)
+           ========================================================================== */
+        .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background-color: var(--card-bg-color); z-index: 2500; box-shadow: 5px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease-in-out; }
+        .sidebar.show { left: 0; }
+        .sidebar-header { padding: 1.5rem; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; text-align: center; }
+        .sidebar-header h3 { font-size: 1.4rem; }
+        .sidebar-content { padding: 1rem; }
+        .sidebar-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; font-size: 1.1rem; font-weight: 500; }
+        /* Toggle Switch CSS */
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2400; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        .overlay.show { opacity: 1; visibility: visible; }
+
+        /* ==========================================================================
+           5. WELCOME PAGE (IMPROVED)
+           ========================================================================== */
+        #welcome-page {
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* **FIX:** কন্টেন্টকে উপর থেকে নিচে সাজানো হলো */
+            justify-content: center; /* সেন্টারে আনা হলো */
             align-items: center;
-            justify-content: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-light-color);
-            transition: color 0.3s ease;
-            flex-grow: 1;
+            text-align: center;
+            background-color: var(--card-bg-color);
+            padding: 2rem;
             height: 100%;
         }
-        
-        .nav-item svg {
-            width: 26px;
-            height: 26px;
-            margin-bottom: 4px;
-        }
-        
-        .nav-item span {
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .nav-item.active {
-            color: var(--primary-color);
-        }
-        
-        .nav-item:disabled {
-            color: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Hide bottom nav on specific pages */
-        #splash-screen.active ~ .bottom-nav,
-        #welcome-page.active ~ .bottom-nav {
-            display: none;
-        }
-        
-
-        /* ==========================================================================
-           4. SPLASH & WELCOME PAGES (Largely unchanged)
-           ========================================================================== */
-        #splash-screen {
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            text-align: center;
-            gap: 1rem;
-            position: absolute; /* To cover the whole app container */
-            z-index: 9999;
-        }
-
-        #splash-screen .logo {
-            width: 100px;
-            height: 100px;
-            background-color: white;
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: var(--shadow);
-            animation: popIn 0.8s ease-out;
-        }
-        
-        #splash-screen .logo svg { width: 60px; height: 60px; color: var(--primary-color); }
-        #splash-screen h1 { font-size: 2rem; font-weight: 700; animation: slideUp 1s ease-out; }
-
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 80% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        #welcome-page { justify-content: space-between; text-align: center; background-color: white; }
-        .welcome-content { padding: 2rem; }
-        .welcome-content .app-icon { margin: 2rem auto; width: 120px; height: 120px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 25px; display: flex; justify-content: center; align-items: center; box-shadow: var(--shadow); }
-        .welcome-content .app-icon svg { width: 70px; height: 70px; color: white; }
-        .welcome-content h2 { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary-color); }
-        .feature-list { margin-top: 2rem; text-align: left; display: flex; flex-direction: column; gap: 1.5rem; }
+        .welcome-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
+        .welcome-content .app-icon { margin: 0 auto 1.5rem; width: 100px; height: 100px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 25px; display: flex; justify-content: center; align-items: center; box-shadow: var(--shadow); }
+        .welcome-content .app-icon svg { width: 60px; height: 60px; color: white; }
+        .welcome-content h2 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-color); }
+        .welcome-content > p { font-size: 1rem; color: var(--text-light-color); margin-bottom: 2.5rem; }
+        /* **NEW:** ফিচার লিস্ট যোগ করা হলো */
+        .feature-list { text-align: left; display: flex; flex-direction: column; gap: 1.5rem; }
         .feature-item { display: flex; align-items: center; gap: 1rem; }
-        .feature-item .icon { width: 45px; height: 45px; background-color: var(--bg-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary-color); flex-shrink: 0; }
-        .feature-item .icon svg { width: 24px; height: 24px; }
+        .feature-item .icon { width: 40px; height: 40px; background-color: var(--bg-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary-color); flex-shrink: 0; }
+        .feature-item .icon svg { width: 22px; height: 22px; }
         .feature-item p { font-size: 1rem; font-weight: 500; }
-        .welcome-footer { padding: 2rem; width: 100%; }
         
+        .welcome-footer { padding-top: 2.5rem; width: 100%; flex-shrink: 0; }
         .btn { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
         .btn-primary { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; box-shadow: 0 4px 15px rgba(0, 90, 156, 0.3); display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0, 90, 156, 0.4); }
-
-        /* ==========================================================================
-           5. ADD POLICY FORM (Largely unchanged)
-           ========================================================================== */
-        .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-light-color); }
-        .form-group input, .form-group select { width: 100%; padding: 0.9rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Poppins', sans-serif; background-color: #fff; transition: border-color 0.3s, box-shadow 0.3s; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.15); }
-        input[type="date"] { position: relative; }
-        input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); opacity: 0.7; cursor: pointer; width: 20px; height: 20px; }
-        .form-actions { display: flex; gap: 1rem; }
-        .btn-secondary { background-color: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
-
-        /* ==========================================================================
-           6. NEW & RESTRUCTURED PAGES (Home, Overview, Profile)
-           ========================================================================== */
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
         
-        #policy-list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
+        /* ==========================================================================
+           6. HOME PAGE & POLICY CARD (WITH SELECTION STYLE)
+           ========================================================================== */
         .policy-card {
             background-color: var(--card-bg-color);
             padding: 1rem;
@@ -267,30 +215,50 @@
             justify-content: space-between;
             align-items: center;
             border-left: 5px solid var(--primary-color);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+            cursor: pointer;
+            user-select: none; /* Prevent text selection during long press */
         }
-        .policy-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-        .policy-info h4 { font-size: 1.1rem; font-weight: 600; }
-        .policy-info p { font-size: 0.85rem; color: var(--text-light-color); }
-        .policy-due { text-align: right; }
-        .policy-due .amount { font-size: 1.2rem; font-weight: 600; color: var(--primary-color); }
-        .policy-due .date { font-size: 0.85rem; color: var(--text-light-color); }
-        
-        /* Chart Styles */
-        #investment-chart-container { background-color: var(--card-bg-color); padding: 1.5rem; border-radius: var(--border-radius); box-shadow: var(--shadow); position: relative; }
-        #investment-chart-container .chart-title { text-align: center; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; color: var(--primary-color); }
-        #total-investment-text { position: absolute; top: 58%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
-        #total-investment-text .amount { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
-        #total-investment-text .label { font-size: 0.9rem; color: var(--text-light-color); }
-        
-        /* Profile Page Styles */
-        #profile-page { align-items: center; text-align: center; }
-        .profile-card { background: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 2rem; width: 100%; }
-        .profile-pic { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 1rem; object-fit: cover; border: 4px solid var(--primary-color); }
-        .profile-name { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; }
-        .profile-email { font-size: 1rem; color: var(--text-light-color); margin-bottom: 2rem; }
-        .btn-danger { background-color: var(--danger-color); color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); }
+        .policy-card.selected {
+            background-color: var(--secondary-color);
+            color: white;
+            border-left-color: white;
+        }
+        .policy-card.selected .policy-info p,
+        .policy-card.selected .policy-due .date {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .policy-card.selected .policy-due .amount { color: white; }
 
+        .policy-info h4 { font-size: 1.1rem; font-weight: 600; }
+        .policy-info p { font-size: 0.85rem; color: var(--text-light-color); transition: color 0.3s; }
+        .policy-due { text-align: right; }
+        .policy-due .amount { font-size: 1.2rem; font-weight: 600; color: var(--primary-color); transition: color 0.3s; }
+        .policy-due .date { font-size: 0.85rem; color: var(--text-light-color); transition: color 0.3s; }
+        #policy-list-container { display: flex; flex-direction: column; gap: 1rem; }
+        
+        /* ==========================================================================
+           7. OVERVIEW PAGE - DETAILED VIEW (NEW)
+           ========================================================================== */
+        .details-card {
+            background-color: var(--card-bg-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+        .details-header h3 { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); }
+        .details-header p { font-size: 0.9rem; color: var(--text-light-color); margin-bottom: 1.5rem; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .detail-item { background-color: var(--bg-color); padding: 1rem; border-radius: 8px; }
+        .detail-item .label { font-size: 0.85rem; color: var(--text-light-color); margin-bottom: 0.25rem; }
+        .detail-item .value { font-size: 1.1rem; font-weight: 600; color: var(--text-color); }
+        .detail-item .value.highlight { color: var(--success-color); }
+        .grid-full-width { grid-column: 1 / -1; }
+
+        /* ==========================================================================
+           8. MODALS & OTHER COMPONENTS
+           ========================================================================== */
         /* Floating Action Button (FAB) */
         #add-policy-fab {
             position: fixed;
@@ -310,96 +278,85 @@
             box-shadow: 0 5px 15px rgba(0, 90, 156, 0.4);
             cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 1001; /* Above page content but below modals */
+            z-index: 1001;
         }
-        #add-policy-fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 8px 25px rgba(0, 90, 156, 0.5); }
-
-        /* ==========================================================================
-           7. NEW: MODALS & TOASTS
-           ========================================================================== */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 3000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .modal-overlay.show { opacity: 1; visibility: visible; }
-        .modal-content {
-            background: var(--card-bg-color);
-            padding: 2rem;
-            border-radius: var(--border-radius);
-            width: 90%;
-            max-width: 320px;
-            text-align: center;
-            transform: scale(0.9);
-            transition: transform 0.3s;
-        }
+        .modal-content { background: var(--card-bg-color); padding: 2rem; border-radius: var(--border-radius); width: 90%; max-width: 320px; text-align: center; transform: scale(0.9); transition: transform 0.3s, background-color 0.3s; }
         .modal-overlay.show .modal-content { transform: scale(1); }
         .modal-content h3 { margin-bottom: 1rem; }
         .modal-content p { margin-bottom: 1.5rem; color: var(--text-light-color); }
         .modal-actions { display: flex; gap: 1rem; }
+        .btn-secondary { background-color: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-danger { background-color: var(--danger-color); color: white; }
 
-        #exit-toast {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            z-index: 3000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        #exit-toast.show { opacity: 1; visibility: visible; }
-
-        /* ==========================================================================
-           8. UTILITY & EMPTY STATE
-           ========================================================================== */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-light-color);
-            width: 100%;
-            margin-top: 2rem;
-        }
+        .hidden { display: none !important; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-light-color); }
         .empty-state svg { width: 80px; height: 80px; margin-bottom: 1rem; opacity: 0.5; }
         .empty-state h3 { font-size: 1.2rem; color: var(--text-color); margin-bottom: 0.5rem; }
 
-        .hidden { display: none !important; }
-
+        /* Other minor styles from original code */
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-light-color); }
+        .form-group input, .form-group select { width: 100%; padding: 0.9rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Poppins', sans-serif; background-color: var(--card-bg-color); transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s; color: var(--text-color); }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.15); }
+        .form-actions { display: flex; gap: 1rem; }
+        #profile-page { align-items: center; text-align: center; }
+        .profile-card { background: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 2rem; width: 100%; }
+        .profile-pic { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 1rem; object-fit: cover; border: 4px solid var(--primary-color); }
+        .profile-name { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .profile-email { font-size: 1rem; color: var(--text-light-color); margin-bottom: 2rem; }
     </style>
 </head>
 <body>
 
     <!-- App Container -->
     <div class="app-container">
-        
-        <main>
-            <!-- PAGE 1: SPLASH SCREEN -->
-            <div id="splash-screen" class="page page-full active">
-                <div class="logo">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5z"/></svg>
-                </div>
-                <h1>My LIC Manager</h1>
-            </div>
 
-            <!-- PAGE 2: WELCOME / LOGIN PAGE -->
-            <div id="welcome-page" class="page page-full">
+        <!-- NEW: App Header (Shared across pages) -->
+        <header id="app-header" class="app-header hidden">
+             <!-- Left side: Hamburger Menu or Back Arrow -->
+            <div id="header-left">
+                <button id="hamburger-btn" class="header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+            <!-- Center: Title -->
+            <h1 id="header-title" class="header-title">My Policies</h1>
+            <!-- Right side: Actions like Delete -->
+            <div id="header-right">
+                 <button id="delete-btn" class="header-icon hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- No Splash screen, handled by JS logic -->
+
+            <!-- PAGE 1: WELCOME / LOGIN PAGE -->
+            <div id="welcome-page" class="page page-full active">
                 <div class="welcome-content">
                     <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
                     <h2>Welcome!</h2>
-                    <p style="color: var(--text-light-color);">Manage your LIC policies effortlessly.</p>
+                    <p>Manage your LIC policies effortlessly.</p>
+                    
+                    <!-- NEW: Feature List from Screenshot -->
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                            <p>Never miss a premium due date</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+                            <p>Track your policy growth</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+                            <p>All your policies in one place</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="welcome-footer">
                     <button id="login-btn" class="btn btn-primary">
@@ -409,14 +366,8 @@
                 </div>
             </div>
             
-            <!-- PAGE 3: ADD NEW POLICY FORM -->
+            <!-- PAGE 2: ADD NEW POLICY FORM -->
             <div id="add-policy-page" class="page">
-                <div class="page-header">
-                    <div class="header-text">
-                        <h1>Add New Policy</h1>
-                        <p>Fill in the details of your new policy.</p>
-                    </div>
-                </div>
                 <form id="add-policy-form">
                     <div class="form-group"><label for="policyHolderName">Policy Holder Name</label><input type="text" id="policyHolderName" required></div>
                     <div class="form-group"><label for="policyNumber">Policy Number</label><input type="text" id="policyNumber" required></div>
@@ -426,6 +377,7 @@
                     <div class="form-group"><label for="nextPremiumDueDate">Next Premium Due Date</label><input type="date" id="nextPremiumDueDate" required></div>
                     <div class="form-group"><label for="policyStartDate">Policy Start Date</label><input type="date" id="policyStartDate" required></div>
                     <div class="form-group"><label for="policyTerm">Policy Term (in years)</label><input type="number" id="policyTerm" required></div>
+                    <div class="form-group"><label for="maturityAmount">Estimated Maturity Amount (₹)</label><input type="number" id="maturityAmount" placeholder="Optional"></div>
                     <div class="form-actions">
                         <button type="button" id="cancel-add-policy-btn" class="btn btn-secondary">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Policy</button>
@@ -433,38 +385,21 @@
                 </form>
             </div>
             
-            <!-- PAGE 4: HOME (POLICY LIST) -->
+            <!-- PAGE 3: HOME (POLICY LIST) -->
             <div id="home-page" class="page">
-                 <h2 class="section-title">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                     All Policies
-                 </h2>
                  <div id="policy-list-container">
-                    <!-- Policy cards will be injected here -->
+                    <!-- Policy cards will be injected here by JS -->
                  </div>
             </div>
 
-            <!-- PAGE 5: AGENT (Placeholder) -->
-            <div id="agent-page" class="page">
-                <div class="empty-state">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-                    <h3>Agent Details</h3>
-                    <p>This feature is coming soon!</p>
-                </div>
-            </div>
-
-            <!-- PAGE 6: OVERVIEW (CHART) -->
+            <!-- PAGE 4: OVERVIEW (REDESIGNED) -->
             <div id="overview-page" class="page">
-                <h2 class="section-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-                    Investment Overview
-                </h2>
                 <div id="overview-content-container">
-                    <!-- Chart and summary will be injected here -->
+                    <!-- Policy Details will be injected here by JS -->
                 </div>
             </div>
 
-            <!-- PAGE 7: PROFILE -->
+            <!-- PAGE 5: PROFILE -->
             <div id="profile-page" class="page">
                 <div class="profile-card">
                     <img id="profile-pic" src="https://i.stack.imgur.com/34AD2.jpg" alt="Profile Picture" class="profile-pic">
@@ -473,25 +408,34 @@
                     <button id="logout-btn" class="btn btn-danger">Logout</button>
                 </div>
             </div>
-
+            
+            <!-- PAGE 6: AGENT (Placeholder) -->
+            <div id="agent-page" class="page">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                    <h3>Agent Details</h3>
+                    <p>This feature is coming soon!</p>
+                </div>
+            </div>
         </main>
         
         <!-- FLOATING ACTION BUTTON -->
         <button id="add-policy-fab" class="hidden">+</button>
 
-        <!-- BOTTOM NAVIGATION BAR -->
-        <nav class="bottom-nav">
+        <!-- BOTTOM NAVIGATION BAR (FIXED) -->
+        <nav class="bottom-nav hidden">
             <button class="nav-item active" data-page="home-page">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 <span>Home</span>
             </button>
-            <button class="nav-item" data-page="agent-page" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                <span>Agent</span>
-            </button>
+            <!-- Overview now shows details, so it's disabled by default. It activates on policy click -->
             <button class="nav-item" data-page="overview-page">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
                 <span>Overview</span>
+            </button>
+             <button class="nav-item" data-page="agent-page" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                <span>Agent</span>
             </button>
             <button class="nav-item" data-page="profile-page">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -499,28 +443,52 @@
             </button>
         </nav>
         
-        <!-- LOGOUT CONFIRMATION MODAL -->
+        <!-- NEW: SIDEBAR -->
+        <div id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>Settings</h3>
+                <p id="sidebar-user-email"></p>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-item">
+                    <span>Dark Mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar-overlay" class="overlay"></div>
+
+        <!-- MODALS -->
         <div id="logout-modal" class="modal-overlay">
             <div class="modal-content">
-                <h3>Confirm Logout</h3>
-                <p>Are you sure you want to log out from the app?</p>
+                <h3>Confirm Logout</h3><p>Are you sure you want to log out?</p>
                 <div class="modal-actions">
                     <button id="cancel-logout-btn" class="btn btn-secondary">Cancel</button>
                     <button id="confirm-logout-btn" class="btn btn-danger">Logout</button>
                 </div>
             </div>
         </div>
-
-        <!-- EXIT TOAST NOTIFICATION -->
-        <div id="exit-toast">Press back again to exit</div>
-
+        
+        <!-- NEW: DELETE POLICY MODAL -->
+        <div id="delete-policy-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h3>Delete Policy</h3><p>Are you sure you want to delete the selected policy/policies?</p>
+                <div class="modal-actions">
+                    <button id="cancel-delete-btn" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-delete-btn" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase SDKs -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
       import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-      import { getFirestore, collection, doc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+      import { getFirestore, collection, doc, onSnapshot, addDoc, serverTimestamp, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
       document.addEventListener('DOMContentLoaded', () => {
 
@@ -538,173 +506,161 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // --- 2. GLOBAL VARIABLES & ELEMENT DECLARATIONS ---
+        // --- 2. GLOBAL VARIABLES & ELEMENT SELECTORS ---
         let currentUser = null;
         let policyDataUnsubscribe = null;
-        let localPoliciesCache = []; // পলিসির ডেটা লোকালভাবে সেভ করে রাখার জন্য
-        let investmentChart = null;
-
-        // Navigation state
-        let navigationStack = []; // ন্যাভিগেশন হিস্ট্রি রাখার জন্য
-        let backPressToastTimer = null;
+        let localPoliciesCache = [];
+        let selectedPolicyForOverview = null;
+        
+        // NEW: State for deletion feature
+        let isSelectionModeActive = false;
+        let selectedPolicyIds = new Set();
+        let longPressTimer;
 
         // Element Selectors
+        const appContainer = document.querySelector('.app-container');
+        const appHeader = document.getElementById('app-header');
+        const headerTitle = document.getElementById('header-title');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const deleteBtn = document.getElementById('delete-btn');
         const allPages = document.querySelectorAll('.page');
         const bottomNav = document.querySelector('.bottom-nav');
         const navItems = document.querySelectorAll('.nav-item');
         const addPolicyFab = document.getElementById('add-policy-fab');
         
+        // Login/Logout
         const loginBtn = document.getElementById('login-btn');
         const logoutBtn = document.getElementById('logout-btn');
         const logoutModal = document.getElementById('logout-modal');
         const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
         const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
         
+        // Add Policy
         const addPolicyForm = document.getElementById('add-policy-form');
         const cancelAddPolicyBtn = document.getElementById('cancel-add-policy-btn');
         
+        // Delete Policy
+        const deletePolicyModal = document.getElementById('delete-policy-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
+        // Page Content Containers
         const policyListContainer = document.getElementById('policy-list-container');
         const overviewContentContainer = document.getElementById('overview-content-container');
-        const exitToast = document.getElementById('exit-toast');
+        
+        // Sidebar & Dark Mode
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const sidebarUserEmail = document.getElementById('sidebar-user-email');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
 
-        // --- 3. CORE APP LOGIC: NAVIGATION & PAGE MANAGEMENT ---
+        // --- 3. DARK MODE LOGIC ---
+        function applyTheme(isDark) {
+            if (isDark) {
+                appContainer.classList.add('dark-mode');
+                darkModeToggle.checked = true;
+            } else {
+                appContainer.classList.remove('dark-mode');
+                darkModeToggle.checked = false;
+            }
+        }
 
-        /**
-         * নির্দিষ্ট একটি পেজ দেখানোর জন্য মূল ফাংশন
-         * @param {string} pageId - যে পেজটি দেখানো হবে তার আইডি
-         * @param {boolean} addToHistory - এই ন্যাভিগেশনটি হিস্ট্রিতে যোগ করা হবে কিনা
-         */
-        function showPage(pageId, addToHistory = true) {
+        // Check for saved theme in localStorage
+        const savedTheme = localStorage.getItem('darkMode') === 'true';
+        applyTheme(savedTheme);
+
+        darkModeToggle.addEventListener('change', () => {
+            localStorage.setItem('darkMode', darkModeToggle.checked);
+            applyTheme(darkModeToggle.checked);
+        });
+
+        // --- 4. SIDEBAR LOGIC ---
+        function toggleSidebar(show) {
+            sidebar.classList.toggle('show', show);
+            sidebarOverlay.classList.toggle('show', show);
+        }
+        hamburgerBtn.addEventListener('click', () => toggleSidebar(true));
+        sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
+
+        // --- 5. PAGE NAVIGATION LOGIC ---
+        function showPage(pageId) {
             allPages.forEach(page => page.classList.remove('active'));
             const targetPage = document.getElementById(pageId);
-            if (targetPage) {
-                targetPage.classList.add('active');
-            }
+            if (targetPage) targetPage.classList.add('active');
 
-            // Bottom Nav আইকন-এর active state আপডেট করা
+            // Update bottom nav active state
             navItems.forEach(item => {
                 item.classList.toggle('active', item.dataset.page === pageId);
             });
             
-            // শুধু হোম পেজে '+' বাটন দেখানো হবে
-            addPolicyFab.classList.toggle('hidden', pageId !== 'home-page');
-
-            if (addToHistory) {
-                // একই পেজ বারবার stack-এ পুশ করা এড়ানো হচ্ছে
-                if (navigationStack[navigationStack.length - 1] !== pageId) {
-                    navigationStack.push(pageId);
-                }
-            }
-
-            // যখন Overview পেজ খোলা হবে, তখন চার্ট রেন্ডার করা হবে
-            if (pageId === 'overview-page') {
-                renderOverviewPage(localPoliciesCache);
+            // Show FAB only on home page and not in selection mode
+            addPolicyFab.classList.toggle('hidden', pageId !== 'home-page' || isSelectionModeActive);
+            
+            // Update header based on the page
+            updateHeader(pageId);
+            
+            // Render specific page content
+            if (pageId === 'overview-page' && selectedPolicyForOverview) {
+                renderPolicyDetails(selectedPolicyForOverview);
             }
         }
         
-        // --- 4. BACK BUTTON NAVIGATION SYSTEM ---
-
-        // অ্যাপের শুরুতে একটি প্রাথমিক স্টেট পুশ করা হয়
-        history.pushState({ page: 'initial' }, 'Initial State');
-
-        window.addEventListener('popstate', (event) => {
-            // যখন ব্যবহারকারী ব্যাক বাটন চাপবে, এই ফাংশনটি কল হবে
-            event.preventDefault(); // ব্রাউজারের ডিফল্ট আচরণ বন্ধ করা হলো
+        function updateHeader(pageId) {
+            // Hide header on welcome page
+            appHeader.classList.toggle('hidden', pageId === 'welcome-page');
             
-            if (navigationStack.length > 1) {
-                navigationStack.pop(); // বর্তমান পেজটি stack থেকে সরানো হলো
-                const previousPage = navigationStack[navigationStack.length - 1];
-                showPage(previousPage, false); // আগের পেজে ফিরে যাওয়া হলো, কিন্তু হিস্ট্রিতে যোগ না করে
-            } else {
-                // Stack-এ একটি পেজ আছে (মানে হোম পেজ), এখন অ্যাপ এক্সিট করার পালা
-                if (backPressToastTimer) {
-                    // যদি ব্যবহারকারী দ্রুত আবার ব্যাক বাটন চাপে, তাহলে অ্যাপ বন্ধ হয়ে যাবে (ওয়েব অ্যাপের ক্ষেত্রে আগের পেজে যাবে)
-                    window.history.back(); 
-                } else {
-                    exitToast.classList.add('show');
-                    backPressToastTimer = setTimeout(() => {
-                        exitToast.classList.remove('show');
-                        backPressToastTimer = null;
-                    }, 2000); // ২ সেকেন্ডের জন্য টোস্ট দেখানো হবে
-                    // একটি নতুন স্টেট পুশ করা হচ্ছে যাতে ব্যবহারকারী আবার ব্যাক চাপলে popstate ইভেন্ট ট্রিগার হয়
-                    history.pushState({ page: 'exit-prompt' }, 'Exit Prompt');
-                }
-            }
-        });
+            // Change header title based on page
+            const titles = {
+                'home-page': 'My Policies',
+                'add-policy-page': 'Add New Policy',
+                'overview-page': 'Policy Details',
+                'profile-page': 'My Profile',
+                'agent-page': 'Agent Details'
+            };
+            headerTitle.textContent = titles[pageId] || 'My LIC Manager';
+        }
 
-        // --- 5. AUTHENTICATION ---
+        // --- 6. AUTHENTICATION ---
         onAuthStateChanged(auth, user => {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.display = 'none';
-                if (user) {
-                    currentUser = user;
-                    
-                    // পুরনো ব্যবহারকারীর ডেটা লিসেন করা বন্ধ করা
-                    if (policyDataUnsubscribe) policyDataUnsubscribe();
-                    
-                    fetchAndRenderPolicies(user.uid);
-                    renderProfilePage(user);
-                    
-                    bottomNav.style.display = 'flex';
-                    navigationStack = ['home-page']; // লগইনের পর স্ট্যাক রিসেট করা হলো
-                    showPage('home-page', false);
-                    
-                } else {
-                    currentUser = null;
-                    if (policyDataUnsubscribe) policyDataUnsubscribe();
-                    localPoliciesCache = [];
-                    policyListContainer.innerHTML = '';
-                    overviewContentContainer.innerHTML = '';
-
-                    bottomNav.style.display = 'none';
-                    addPolicyFab.classList.add('hidden');
-                    navigationStack = []; // লগআউটের পর স্ট্যাক খালি করা হলো
-                    showPage('welcome-page', false);
-                }
-            }, 1500); // স্প্ল্যাশ স্ক্রিন ১.৫ সেকেন্ড দেখানো হবে
+            if (user) {
+                currentUser = user;
+                if (policyDataUnsubscribe) policyDataUnsubscribe();
+                fetchAndRenderPolicies(user.uid);
+                renderProfilePage(user);
+                sidebarUserEmail.textContent = user.email;
+                bottomNav.classList.remove('hidden');
+                showPage('home-page');
+            } else {
+                currentUser = null;
+                if (policyDataUnsubscribe) policyDataUnsubscribe();
+                localPoliciesCache = [];
+                policyListContainer.innerHTML = '';
+                overviewContentContainer.innerHTML = '';
+                bottomNav.classList.add('hidden');
+                addPolicyFab.classList.add('hidden');
+                showPage('welcome-page');
+            }
         });
 
-        loginBtn.addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(error => console.error("Sign in error", error));
-        });
-
-        logoutBtn.addEventListener('click', () => {
-            logoutModal.classList.add('show');
-        });
-
-        cancelLogoutBtn.addEventListener('click', () => {
-            logoutModal.classList.remove('show');
-        });
-        
+        loginBtn.addEventListener('click', () => signInWithPopup(auth, provider).catch(error => console.error("Sign in error", error)));
+        logoutBtn.addEventListener('click', () => logoutModal.classList.add('show'));
+        cancelLogoutBtn.addEventListener('click', () => logoutModal.classList.remove('show'));
         confirmLogoutBtn.addEventListener('click', () => {
-            signOut(auth).catch(error => console.error("Sign out error", error));
+            signOut(auth);
             logoutModal.classList.remove('show');
         });
 
-        // --- 6. FIRESTORE DATA MANAGEMENT ---
+        // --- 7. FIRESTORE DATA MANAGEMENT ---
         function fetchAndRenderPolicies(userId) {
-            const policiesCollectionRef = collection(db, 'users', userId, 'policies');
-            
-            policyDataUnsubscribe = onSnapshot(policiesCollectionRef, snapshot => {
-                const policies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                policies.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-                localPoliciesCache = policies; // ডেটা ক্যাশে সেভ করা হলো
-                
-                // শুধুমাত্র হোম পেজের কন্টেন্ট রেন্ডার করা হবে, চার্ট নয়
-                renderHomePage(policies);
-
-                // যদি ব্যবহারকারী overview পেজে থাকে, তাহলে চার্টও আপডেট হবে
-                if (document.getElementById('overview-page').classList.contains('active')) {
-                    renderOverviewPage(policies);
-                }
-
-            }, error => {
-                console.error("Error fetching policies: ", error);
-                policyListContainer.innerHTML = `<p>Could not fetch policy data.</p>`;
-            });
+            const policiesRef = collection(db, 'users', userId, 'policies');
+            policyDataUnsubscribe = onSnapshot(policiesRef, snapshot => {
+                localPoliciesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                localPoliciesCache.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                renderHomePage(localPoliciesCache);
+            }, error => console.error("Error fetching policies: ", error));
         }
 
-        addPolicyForm.addEventListener('submit', (e) => {
+        addPolicyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser) return;
 
@@ -717,130 +673,248 @@
                 dueDate: document.getElementById('nextPremiumDueDate').value,
                 startDate: document.getElementById('policyStartDate').value,
                 term: parseInt(document.getElementById('policyTerm').value),
+                maturityAmount: parseFloat(document.getElementById('maturityAmount').value) || 0,
                 createdAt: serverTimestamp()
             };
-
-            const policiesCollectionRef = collection(db, 'users', currentUser.uid, 'policies');
-            addDoc(policiesCollectionRef, newPolicy)
-                .then(() => {
-                    console.log("Policy successfully added!");
-                    addPolicyForm.reset();
-                    // সফলভাবে যোগ করার পর হোম পেজে ফিরে যাওয়া
-                    history.back(); 
-                })
-                .catch(error => {
-                    console.error("Error adding policy: ", error);
-                    alert("There was an error saving your policy.");
-                });
+            
+            try {
+                await addDoc(collection(db, 'users', currentUser.uid, 'policies'), newPolicy);
+                addPolicyForm.reset();
+                showPage('home-page');
+            } catch (error) {
+                console.error("Error adding policy: ", error);
+                alert("Error saving policy.");
+            }
         });
 
-        // --- 7. UI RENDERING FUNCTIONS ---
-
+        // --- 8. UI RENDERING FUNCTIONS ---
         function renderHomePage(policies) {
             if (policies.length === 0) {
-                policyListContainer.innerHTML = `
-                    <div class="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"/></svg>
-                        <h3>No Policies Found</h3>
-                        <p>Click the '+' button below to add your first policy.</p>
-                    </div>`;
+                policyListContainer.innerHTML = `<div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"/></svg><h3>No Policies Found</h3><p>Click the '+' button to add your first policy.</p></div>`;
             } else {
-                policyListContainer.innerHTML = policies.map(policy => `
-                    <div class="policy-card">
-                        <div class="policy-info"><h4>${policy.holderName}</h4><p>${policy.planName} (${policy.policyNumber})</p></div>
-                        <div class="policy-due"><div class="amount">₹${policy.premiumAmount.toLocaleString('en-IN')}</div><div class="date">Due: ${new Date(policy.dueDate).toLocaleDateString('en-GB')}</div></div>
+                policyListContainer.innerHTML = policies.map(p => `
+                    <div class="policy-card" data-policy-id="${p.id}">
+                        <div class="policy-info"><h4>${p.holderName}</h4><p>${p.planName} (${p.policyNumber})</p></div>
+                        <div class="policy-due"><div class="amount">₹${p.premiumAmount.toLocaleString('en-IN')}</div><div class="date">Due: ${new Date(p.dueDate).toLocaleDateString('en-GB')}</div></div>
                     </div>`).join('');
             }
+            // Add event listeners after rendering
+            addPolicyCardListeners();
         }
         
-        function renderOverviewPage(policies) {
-             if (policies.length === 0) {
-                overviewContentContainer.innerHTML = `
-                    <div class="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                        <h3>No Data to Display</h3>
-                        <p>Add some policies to see your investment overview.</p>
-                    </div>`;
-                return;
-             }
-             
-             // কন্টেইনারে চার্ট এবং টেক্সট যোগ করা হলো
-             overviewContentContainer.innerHTML = `
-                <div id="investment-chart-container">
-                     <canvas id="investmentChart" height="250"></canvas>
-                     <div id="total-investment-text"></div>
-                </div>
-             `;
-             
-             const ctx = document.getElementById('investmentChart')?.getContext('2d');
-             if(!ctx) return;
-
-            let totalInvestment = 0;
-            const chartData = {
-                labels: [],
-                datasets: [{ data: [], backgroundColor: ['#005A9C', '#00AEEF', '#4caf50', '#ff9800', '#f44336', '#9c27b0'], borderColor: 'var(--card-bg-color)', borderWidth: 4, hoverOffset: 10 }]
-            };
+        // NEW: Renders the detailed policy view in the Overview page
+        function renderPolicyDetails(policy) {
+            const startDate = new Date(policy.startDate);
+            const maturityDate = new Date(startDate.setFullYear(startDate.getFullYear() + policy.term));
+            const totalPaid = calculateTotalPaid(policy);
             
-            policies.forEach(policy => {
-                const investmentInPolicy = calculateInvestmentForPolicy(policy);
-                totalInvestment += investmentInPolicy;
-                chartData.labels.push(policy.planName || 'Policy');
-                chartData.datasets[0].data.push(investmentInPolicy);
-            });
-            
-            const totalInvestmentText = document.getElementById('total-investment-text');
-            totalInvestmentText.innerHTML = `<div class="amount">₹${totalInvestment.toLocaleString('en-IN')}</div><div class="label">Total Invested</div>`;
-            
-            if(investmentChart) investmentChart.destroy();
-            investmentChart = new Chart(ctx, {
-                type: 'doughnut', data: chartData, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.label}: ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(c.parsed)}` } } } }
-            });
+            overviewContentContainer.innerHTML = `
+                <div class="details-card">
+                    <div class="details-header">
+                        <h3>${policy.holderName}</h3>
+                        <p>Policy No: ${policy.policyNumber}</p>
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item grid-full-width">
+                            <div class="label">Plan Name</div>
+                            <div class="value">${policy.planName}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Start Date</div>
+                            <div class="value">${new Date(policy.startDate).toLocaleDateString('en-GB')}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Maturity Date</div>
+                            <div class="value">${maturityDate.toLocaleDateString('en-GB')}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Policy Term</div>
+                            <div class="value">${policy.term} Years</div>
+                        </div>
+                         <div class="detail-item">
+                            <div class="label">Premium</div>
+                            <div class="value">₹${policy.premiumAmount.toLocaleString('en-IN')} (${policy.frequency})</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Next Due</div>
+                            <div class="value">${new Date(policy.dueDate).toLocaleDateString('en-GB')}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Total Paid (Approx.)</div>
+                            <div class="value">₹${totalPaid.toLocaleString('en-IN')}</div>
+                        </div>
+                        <div class="detail-item grid-full-width">
+                            <div class="label">Estimated Maturity Amount</div>
+                            <div class="value highlight">₹${(policy.maturityAmount || 0).toLocaleString('en-IN')}</div>
+                        </div>
+                    </div>
+                </div>`;
         }
         
-        function calculateInvestmentForPolicy(policy) {
-            const today = new Date();
+        function calculateTotalPaid(policy) {
+             const today = new Date();
             const startDate = new Date(policy.startDate);
             if (isNaN(startDate.getTime())) return 0;
-            const monthsElapsed = (today.getFullYear() - startDate.getFullYear()) * 12 + (today.getMonth() - startDate.getMonth());
-            let premiumsPaid = 0;
+            const monthsElapsed = Math.max(0, (today.getFullYear() - startDate.getFullYear()) * 12 + (today.getMonth() - startDate.getMonth()));
+            let premiumsPaidCount = 0;
             switch(policy.frequency) {
-                case 'Monthly': premiumsPaid = monthsElapsed; break;
-                case 'Quarterly': premiumsPaid = Math.floor(monthsElapsed / 3); break;
-                case 'Half-yearly': premiumsPaid = Math.floor(monthsElapsed / 6); break;
-                case 'Yearly': premiumsPaid = Math.floor(monthsElapsed / 12); break;
+                case 'Monthly': premiumsPaidCount = monthsElapsed; break;
+                case 'Quarterly': premiumsPaidCount = Math.floor(monthsElapsed / 3); break;
+                case 'Half-yearly': premiumsPaidCount = Math.floor(monthsElapsed / 6); break;
+                case 'Yearly': premiumsPaidCount = Math.floor(monthsElapsed / 12); break;
             }
-            return Math.max(0, premiumsPaid) * policy.premiumAmount;
+            return premiumsPaidCount * policy.premiumAmount;
         }
-        
+
         function renderProfilePage(user) {
             if (!user) return;
             document.getElementById('profile-pic').src = user.photoURL || 'https://i.stack.imgur.com/34AD2.jpg';
-            document.getElementById('profile-name').textContent = user.displayName || 'No Name';
+            document.getElementById('profile-name').textContent = user.displayName || 'User';
             document.getElementById('profile-email').textContent = user.email || 'No Email';
         }
 
-        // --- 8. EVENT LISTENERS ---
+        // --- 9. LONG PRESS & DELETE LOGIC (NEW) ---
+        function enterSelectionMode(policyId, cardElement) {
+            isSelectionModeActive = true;
+            selectedPolicyIds.add(policyId);
+            cardElement.classList.add('selected');
+
+            appHeader.classList.add('selection-mode');
+            headerTitle.textContent = `${selectedPolicyIds.size} Selected`;
+            hamburgerBtn.classList.add('hidden');
+            deleteBtn.classList.remove('hidden');
+            addPolicyFab.classList.add('hidden');
+            bottomNav.classList.add('hidden');
+        }
+
+        function exitSelectionMode() {
+            isSelectionModeActive = false;
+            selectedPolicyIds.clear();
+            document.querySelectorAll('.policy-card.selected').forEach(c => c.classList.remove('selected'));
+            
+            appHeader.classList.remove('selection-mode');
+            headerTitle.textContent = 'My Policies';
+            hamburgerBtn.classList.remove('hidden');
+            deleteBtn.classList.add('hidden');
+            addPolicyFab.classList.remove('hidden');
+            bottomNav.classList.remove('hidden');
+        }
+
+        function togglePolicySelection(policyId, cardElement) {
+            if (selectedPolicyIds.has(policyId)) {
+                selectedPolicyIds.delete(policyId);
+                cardElement.classList.remove('selected');
+            } else {
+                selectedPolicyIds.add(policyId);
+                cardElement.classList.add('selected');
+            }
+            
+            if (selectedPolicyIds.size === 0) {
+                exitSelectionMode();
+            } else {
+                headerTitle.textContent = `${selectedPolicyIds.size} Selected`;
+            }
+        }
         
-        // বটম ন্যাভিগেশন বারে ক্লিক করলে পেজ পরিবর্তন হবে
+        async function handleDeleteConfirmed() {
+            if (!currentUser || selectedPolicyIds.size === 0) return;
+            
+            const batch = writeBatch(db);
+            selectedPolicyIds.forEach(id => {
+                const docRef = doc(db, 'users', currentUser.uid, 'policies', id);
+                batch.delete(docRef);
+            });
+
+            try {
+                await batch.commit();
+                console.log('Policies deleted successfully');
+            } catch (error) {
+                console.error("Error deleting policies: ", error);
+                alert('Could not delete policies. Please try again.');
+            } finally {
+                deletePolicyModal.classList.remove('show');
+                exitSelectionMode();
+            }
+        }
+
+        deleteBtn.addEventListener('click', () => deletePolicyModal.classList.add('show'));
+        cancelDeleteBtn.addEventListener('click', () => deletePolicyModal.classList.remove('show'));
+        confirmDeleteBtn.addEventListener('click', handleDeleteConfirmed);
+
+
+        // --- 10. EVENT LISTENERS ---
         navItems.forEach(item => {
             item.addEventListener('click', () => {
+                if (item.disabled) return;
                 const pageId = item.dataset.page;
-                if (!item.disabled) {
-                    showPage(pageId);
+                // Overview is special, only navigate if a policy is selected
+                if (pageId === 'overview-page' && !selectedPolicyForOverview) {
+                    return;
                 }
+                showPage(pageId);
             });
         });
 
-        // ফ্লোটিং '+' বাটনে ক্লিক করলে Add Policy পেজ খুলবে
-        addPolicyFab.addEventListener('click', () => {
-             showPage('add-policy-page');
-        });
+        addPolicyFab.addEventListener('click', () => showPage('add-policy-page'));
+        cancelAddPolicyBtn.addEventListener('click', () => showPage('home-page'));
         
-        // Add Policy ফর্মের Cancel বাটনে ক্লিক করলে আগের পেজে ফিরে যাবে
-        cancelAddPolicyBtn.addEventListener('click', () => {
-            history.back(); // ন্যাভিগেশন সিস্টেম ব্যবহার করে আগের পেজে ফেরা
-        });
+        // This function adds listeners to the dynamically created policy cards
+        function addPolicyCardListeners() {
+            const cards = document.querySelectorAll('.policy-card');
+            cards.forEach(card => {
+                const policyId = card.dataset.policyId;
+                
+                // Mouse/Touch Down
+                card.addEventListener('mousedown', (e) => handlePressStart(e, policyId, card));
+                card.addEventListener('touchstart', (e) => handlePressStart(e, policyId, card));
 
+                // Mouse/Touch Up
+                card.addEventListener('mouseup', handlePressEnd);
+                card.addEventListener('touchend', handlePressEnd);
+                
+                // If mouse moves, cancel long press
+                card.addEventListener('mousemove', () => clearTimeout(longPressTimer));
+                card.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+            });
+        }
+        
+        function handlePressStart(e, policyId, card) {
+            // Start a timer for long press
+            longPressTimer = setTimeout(() => {
+                // If selection mode isn't active, enter it
+                if (!isSelectionModeActive) {
+                    enterSelectionMode(policyId, card);
+                }
+            }, 600); // 600ms for long press
+        }
+
+        function handlePressEnd(e) {
+            clearTimeout(longPressTimer);
+            const card = e.currentTarget;
+            const policyId = card.dataset.policyId;
+
+            if (isSelectionModeActive) {
+                // If we are in selection mode, a short click toggles selection
+                togglePolicySelection(policyId, card);
+            } else {
+                // Otherwise, it's a normal click to view details
+                selectedPolicyForOverview = localPoliciesCache.find(p => p.id === policyId);
+                if (selectedPolicyForOverview) {
+                    showPage('overview-page');
+                }
+            }
+        }
+        
+        // Back button functionality
+        window.addEventListener('popstate', () => {
+             if (isSelectionModeActive) {
+                exitSelectionMode();
+                history.pushState(null, '', window.location.pathname); // Prevent going back
+             } else {
+                // Default back behavior
+                showPage('home-page');
+             }
+        });
       });
     </script>
 </body>
