@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>My LIC Manager</title>
     
     <!-- Google Fonts: Poppins -->
@@ -10,9 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Chart.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
         /* ==========================================================================
            1. GLOBAL STYLES & VARIABLES
@@ -20,16 +17,31 @@
         :root {
             --primary-color: #005A9C; /* LIC's official blue */
             --secondary-color: #00AEEF; /* A lighter, vibrant blue */
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+
+            /* Light Mode Variables */
             --bg-color: #f4f7f9;
             --card-bg-color: #ffffff;
             --text-color: #333333;
             --text-light-color: #6c757d;
             --border-color: #e0e0e0;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            --border-radius: 12px;
+            --header-bg: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            --header-text-color: #ffffff;
+        }
+
+        body.dark-mode {
+            /* Dark Mode Variable Overrides */
+            --bg-color: #121212;
+            --card-bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-light-color: #a0a0a0;
+            --border-color: #333333;
+            --header-bg: #1e1e1e;
+            --header-text-color: #e0e0e0;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         }
 
         * {
@@ -45,33 +57,55 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #e9ebee;
+            background-color: #1c1c1e; /* A neutral dark color for the outside area */
             color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport height for mobile */
             padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* ==========================================================================
-           2. APP CONTAINER & PAGE STRUCTURE
+           2. APP STRUCTURE (FIXED SCROLLING IMPLEMENTATION)
            ========================================================================== */
         .app-container {
             width: 100%;
             max-width: 420px;
-            height: 100vh; /* Full viewport height */
+            height: 100vh;
+            height: 100dvh;
             background-color: var(--bg-color);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             position: relative;
             display: flex;
             flex-direction: column;
+            transition: background-color 0.3s ease;
         }
         
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: var(--header-bg);
+            color: var(--header-text-color);
+            flex-shrink: 0;
+            height: 70px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .app-header h1 { font-size: 1.5rem; font-weight: 600; }
+        .header-icon { background: none; border: none; color: inherit; cursor: pointer; padding: 5px; }
+        .header-icon svg { width: 26px; height: 26px; }
+
         main {
             flex-grow: 1;
-            overflow-y: auto;
+            overflow-y: auto; /* THIS IS THE KEY: Makes only main content scrollable */
+            overflow-x: hidden;
             position: relative;
         }
 
@@ -79,51 +113,28 @@
             display: none;
             flex-direction: column;
             width: 100%;
-            height: 100%;
+            min-height: 100%; /* Ensure page takes full height of main */
             opacity: 0;
             animation: fadeIn 0.4s forwards;
-            overflow-y: auto;
-            overflow-x: hidden;
             padding: 1.5rem;
         }
-        
-        .page.active {
-            display: flex;
-        }
-        
-        .page-full { /* For pages without default padding, like the welcome screen */
-             padding: 0;
-        }
+        .page.active { display: flex; }
+        .page-full { padding: 0; }
+        #welcome-page { overflow: hidden; } /* Prevents scrolling on welcome page */
         
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.98); }
             to { opacity: 1; transform: scale(1); }
         }
-
-        .page-header {
-            padding: 1.5rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: -1.5rem -1.5rem 1.5rem -1.5rem; /* Make header full-width */
-        }
         
-        .page-header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-        .page-header p {
-            font-size: 0.9rem;
-            opacity: 0.9;
+        /* Hide app header on specific pages */
+        #splash-screen.active ~ .app-header,
+        #welcome-page.active ~ .app-header {
+            display: none;
         }
 
         /* ==========================================================================
-           3. NEW: BOTTOM NAVIGATION BAR
+           3. BOTTOM NAVIGATION BAR
            ========================================================================== */
         .bottom-nav {
             display: flex;
@@ -136,41 +147,17 @@
             border-top: 1px solid var(--border-color);
             flex-shrink: 0;
             z-index: 1000;
+            transition: background-color 0.3s ease, border-top 0.3s ease;
         }
-
         .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-light-color);
-            transition: color 0.3s ease;
-            flex-grow: 1;
-            height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: none; border: none; cursor: pointer; color: var(--text-light-color);
+            transition: color 0.3s ease; flex-grow: 1; height: 100%;
         }
-        
-        .nav-item svg {
-            width: 26px;
-            height: 26px;
-            margin-bottom: 4px;
-        }
-        
-        .nav-item span {
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .nav-item.active {
-            color: var(--primary-color);
-        }
-        
-        .nav-item:disabled {
-            color: #ccc;
-            cursor: not-allowed;
-        }
+        .nav-item svg { width: 26px; height: 26px; margin-bottom: 4px; }
+        .nav-item span { font-size: 0.75rem; font-weight: 500; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item:disabled { color: #555; cursor: not-allowed; }
 
         /* Hide bottom nav on specific pages */
         #splash-screen.active ~ .bottom-nav,
@@ -178,114 +165,89 @@
             display: none;
         }
         
-
         /* ==========================================================================
-           4. SPLASH & WELCOME PAGES (Largely unchanged)
+           4. SPLASH & NEW WELCOME PAGE
            ========================================================================== */
         #splash-screen {
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            text-align: center;
-            gap: 1rem;
-            position: absolute; /* To cover the whole app container */
-            z-index: 9999;
+            justify-content: center; align-items: center; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white; text-align: center; gap: 1rem; position: absolute; z-index: 9999;
         }
-
         #splash-screen .logo {
-            width: 100px;
-            height: 100px;
-            background-color: white;
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: var(--shadow);
+            width: 100px; height: 100px; background-color: white; border-radius: 20px;
+            display: flex; justify-content: center; align-items: center; box-shadow: var(--shadow);
             animation: popIn 0.8s ease-out;
         }
-        
         #splash-screen .logo svg { width: 60px; height: 60px; color: var(--primary-color); }
         #splash-screen h1 { font-size: 2rem; font-weight: 700; animation: slideUp 1s ease-out; }
-
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 80% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        #welcome-page { justify-content: space-between; text-align: center; background-color: white; }
-        .welcome-content { padding: 2rem; }
-        .welcome-content .app-icon { margin: 2rem auto; width: 120px; height: 120px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 25px; display: flex; justify-content: center; align-items: center; box-shadow: var(--shadow); }
-        .welcome-content .app-icon svg { width: 70px; height: 70px; color: white; }
-        .welcome-content h2 { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary-color); }
-        .feature-list { margin-top: 2rem; text-align: left; display: flex; flex-direction: column; gap: 1.5rem; }
+        /* NEW LOGIN PAGE DESIGN */
+        #welcome-page { justify-content: space-between; text-align: center; background-color: var(--bg-color); }
+        .welcome-content { padding: 2rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .welcome-content .app-icon { margin: 0 auto; width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 25px; display: flex; justify-content: center; align-items: center; box-shadow: var(--shadow); }
+        .welcome-content .app-icon svg { width: 45px; height: 45px; color: white; }
+        .welcome-content h2 { font-size: 2.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--primary-color); }
+        .welcome-content > p { font-size: 1rem; color: var(--text-light-color); }
+        .feature-list { margin-top: 2.5rem; text-align: left; display: flex; flex-direction: column; gap: 1.5rem; }
         .feature-item { display: flex; align-items: center; gap: 1rem; }
-        .feature-item .icon { width: 45px; height: 45px; background-color: var(--bg-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary-color); flex-shrink: 0; }
-        .feature-item .icon svg { width: 24px; height: 24px; }
-        .feature-item p { font-size: 1rem; font-weight: 500; }
-        .welcome-footer { padding: 2rem; width: 100%; }
+        .feature-item .icon { width: 40px; height: 40px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary-color); flex-shrink: 0; }
+        .feature-item .icon svg { width: 20px; height: 20px; }
+        .feature-item p { font-size: 0.95rem; font-weight: 500; }
+        .welcome-footer { padding: 2rem; width: 100%; border-top: 1px solid var(--border-color); background-color: var(--card-bg-color); }
         
         .btn { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
         .btn-primary { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; box-shadow: 0 4px 15px rgba(0, 90, 156, 0.3); display: flex; justify-content: center; align-items: center; gap: 10px; }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0, 90, 156, 0.4); }
 
         /* ==========================================================================
-           5. ADD POLICY FORM (Largely unchanged)
+           5. ADD POLICY FORM & OTHER PAGES
            ========================================================================== */
         .form-group { margin-bottom: 1.2rem; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-light-color); }
-        .form-group input, .form-group select { width: 100%; padding: 0.9rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Poppins', sans-serif; background-color: #fff; transition: border-color 0.3s, box-shadow 0.3s; }
+        .form-group input, .form-group select { width: 100%; padding: 0.9rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Poppins', sans-serif; background-color: var(--card-bg-color); color: var(--text-color); transition: border-color 0.3s, box-shadow 0.3s; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.15); }
         input[type="date"] { position: relative; }
-        input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); opacity: 0.7; cursor: pointer; width: 20px; height: 20px; }
-        .form-actions { display: flex; gap: 1rem; }
+        input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); opacity: 0.7; cursor: pointer; width: 20px; height: 20px; filter: invert(var(--is-dark, 0)); }
+        body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator { --is-dark: 1; }
+        .form-actions { display: flex; gap: 1rem; margin-top: 2rem; }
         .btn-secondary { background-color: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
 
-        /* ==========================================================================
-           6. NEW & RESTRUCTURED PAGES (Home, Overview, Profile)
-           ========================================================================== */
         .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 1.3rem; font-weight: 600; margin-bottom: 1rem;
+            color: var(--primary-color); display: flex; align-items: center; gap: 0.5rem;
         }
         
-        #policy-list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        #policy-list-container { display: flex; flex-direction: column; gap: 1rem; }
 
         .policy-card {
-            background-color: var(--card-bg-color);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 5px solid var(--primary-color);
-            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: var(--card-bg-color); padding: 1rem; border-radius: var(--border-radius);
+            box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center;
+            border-left: 5px solid var(--primary-color); transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
+            cursor: pointer; user-select: none;
         }
         .policy-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-        .policy-info h4 { font-size: 1.1rem; font-weight: 600; }
+        .policy-info h4 { font-size: 1.1rem; font-weight: 600; color: var(--text-color); }
         .policy-info p { font-size: 0.85rem; color: var(--text-light-color); }
-        .policy-due { text-align: right; }
         .policy-due .amount { font-size: 1.2rem; font-weight: 600; color: var(--primary-color); }
         .policy-due .date { font-size: 0.85rem; color: var(--text-light-color); }
         
-        /* Chart Styles */
-        #investment-chart-container { background-color: var(--card-bg-color); padding: 1.5rem; border-radius: var(--border-radius); box-shadow: var(--shadow); position: relative; }
-        #investment-chart-container .chart-title { text-align: center; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; color: var(--primary-color); }
-        #total-investment-text { position: absolute; top: 58%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
-        #total-investment-text .amount { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
-        #total-investment-text .label { font-size: 0.9rem; color: var(--text-light-color); }
+        /* NEW: Delete Mode Highlight */
+        .policy-card.delete-mode-selected {
+            border-left-color: var(--danger-color);
+            background-color: color-mix(in srgb, var(--danger-color) 10%, var(--card-bg-color));
+        }
+        
+        /* NEW: Overview Page (Policy Details) Styles */
+        .details-list { display: flex; flex-direction: column; gap: 1rem; background-color: var(--card-bg-color); padding: 1.5rem; border-radius: var(--border-radius); box-shadow: var(--shadow); }
+        .detail-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color); }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-item .label { font-weight: 500; color: var(--text-light-color); }
+        .detail-item .value { font-weight: 600; color: var(--text-color); text-align: right; }
         
         /* Profile Page Styles */
         #profile-page { align-items: center; text-align: center; }
-        .profile-card { background: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 2rem; width: 100%; }
+        .profile-card { background: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 2rem; width: 100%; transition: background-color 0.3s; }
         .profile-pic { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 1rem; object-fit: cover; border: 4px solid var(--primary-color); }
         .profile-name { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; }
         .profile-email { font-size: 1rem; color: var(--text-light-color); margin-bottom: 2rem; }
@@ -293,97 +255,104 @@
 
         /* Floating Action Button (FAB) */
         #add-policy-fab {
-            position: fixed;
-            bottom: 90px; /* Above nav bar */
-            right: 2rem;
-            width: 60px;
-            height: 60px;
+            position: absolute; bottom: 90px; right: 2rem; width: 60px; height: 60px;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 50%;
-            border: none;
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 300;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 5px 15px rgba(0, 90, 156, 0.4);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 1001; /* Above page content but below modals */
+            border-radius: 50%; border: none; color: white; font-size: 2.5rem; font-weight: 300;
+            display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(0, 90, 156, 0.4);
+            cursor: pointer; transition: all 0.3s ease; z-index: 1001;
         }
         #add-policy-fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 8px 25px rgba(0, 90, 156, 0.5); }
+        #add-policy-fab.hidden { transform: scale(0); opacity: 0; }
+        
+        /* ==========================================================================
+           6. NEW: SIDEBAR & DARK MODE
+           ========================================================================== */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1999;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+        }
+        .sidebar-overlay.show { opacity: 1; visibility: visible; }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
+            background-color: var(--card-bg-color); z-index: 2000;
+            transform: translateX(-100%); transition: transform 0.3s ease, background-color 0.3s ease;
+            display: flex; flex-direction: column; padding: 1.5rem;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar h2 { color: var(--primary-color); margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+
+        .sidebar-item { display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
+        
+        /* Dark mode toggle switch */
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:focus + .slider { box-shadow: 0 0 1px var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
 
         /* ==========================================================================
-           7. NEW: MODALS & TOASTS
+           7. MODALS & TOASTS
            ========================================================================== */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+            display: flex; justify-content: center; align-items: center; z-index: 2100;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
         }
         .modal-overlay.show { opacity: 1; visibility: visible; }
         .modal-content {
-            background: var(--card-bg-color);
-            padding: 2rem;
-            border-radius: var(--border-radius);
-            width: 90%;
-            max-width: 320px;
-            text-align: center;
-            transform: scale(0.9);
-            transition: transform 0.3s;
+            background: var(--card-bg-color); padding: 2rem; border-radius: var(--border-radius);
+            width: 90%; max-width: 320px; text-align: center;
+            transform: scale(0.9); transition: transform 0.3s, background-color 0.3s;
         }
         .modal-overlay.show .modal-content { transform: scale(1); }
-        .modal-content h3 { margin-bottom: 1rem; }
+        .modal-content h3 { margin-bottom: 1rem; color: var(--text-color); }
         .modal-content p { margin-bottom: 1.5rem; color: var(--text-light-color); }
         .modal-actions { display: flex; gap: 1rem; }
 
         #exit-toast {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            z-index: 3000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 0.8rem 1.5rem;
+            border-radius: 25px; font-size: 0.9rem; z-index: 3000;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
         }
-        #exit-toast.show { opacity: 1; visibility: visible; }
+        #exit-toast.show { opacity: 1; visibility: visible; transform: translate(-50%, -10px); }
 
         /* ==========================================================================
            8. UTILITY & EMPTY STATE
            ========================================================================== */
         .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-light-color);
-            width: 100%;
-            margin-top: 2rem;
+            text-align: center; padding: 3rem 1rem; color: var(--text-light-color);
+            width: 100%; margin-top: 2rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            flex-grow: 1;
         }
         .empty-state svg { width: 80px; height: 80px; margin-bottom: 1rem; opacity: 0.5; }
         .empty-state h3 { font-size: 1.2rem; color: var(--text-color); margin-bottom: 0.5rem; }
-
         .hidden { display: none !important; }
-
     </style>
 </head>
 <body>
 
     <!-- App Container -->
     <div class="app-container">
+        
+        <!-- NEW: GLOBAL APP HEADER -->
+        <header class="app-header">
+            <!-- Hamburger Menu Icon -->
+            <button id="hamburger-menu-btn" class="header-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+            </button>
+            <h1 id="app-header-title">Home</h1>
+            <!-- Delete Icon (hidden by default) -->
+            <button id="delete-policy-btn" class="header-icon hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+        </header>
         
         <main>
             <!-- PAGE 1: SPLASH SCREEN -->
@@ -394,12 +363,26 @@
                 <h1>My LIC Manager</h1>
             </div>
 
-            <!-- PAGE 2: WELCOME / LOGIN PAGE -->
+            <!-- PAGE 2: WELCOME / LOGIN PAGE (REDESIGNED) -->
             <div id="welcome-page" class="page page-full">
                 <div class="welcome-content">
-                    <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
+                    <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.24L19.5 8.5 12 12.26 4.5 8.5 12 4.24zM3 8.82V17l9 4.5v-8.68L3 8.82zm18 0L12 12.82v8.68l9-4.5V8.82z"/></svg></div>
                     <h2>Welcome!</h2>
-                    <p style="color: var(--text-light-color);">Manage your LIC policies effortlessly.</p>
+                    <p>Manage your LIC policies effortlessly.</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg></div>
+                            <p>Never miss a premium due date</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></div>
+                            <p>Track your policy growth</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"/></svg></div>
+                            <p>All your policies in one place</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="welcome-footer">
                     <button id="login-btn" class="btn btn-primary">
@@ -411,12 +394,6 @@
             
             <!-- PAGE 3: ADD NEW POLICY FORM -->
             <div id="add-policy-page" class="page">
-                <div class="page-header">
-                    <div class="header-text">
-                        <h1>Add New Policy</h1>
-                        <p>Fill in the details of your new policy.</p>
-                    </div>
-                </div>
                 <form id="add-policy-form">
                     <div class="form-group"><label for="policyHolderName">Policy Holder Name</label><input type="text" id="policyHolderName" required></div>
                     <div class="form-group"><label for="policyNumber">Policy Number</label><input type="text" id="policyNumber" required></div>
@@ -435,10 +412,6 @@
             
             <!-- PAGE 4: HOME (POLICY LIST) -->
             <div id="home-page" class="page">
-                 <h2 class="section-title">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                     All Policies
-                 </h2>
                  <div id="policy-list-container">
                     <!-- Policy cards will be injected here -->
                  </div>
@@ -453,14 +426,10 @@
                 </div>
             </div>
 
-            <!-- PAGE 6: OVERVIEW (CHART) -->
+            <!-- PAGE 6: OVERVIEW (REDESIGNED as POLICY DETAILS) -->
             <div id="overview-page" class="page">
-                <h2 class="section-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-                    Investment Overview
-                </h2>
                 <div id="overview-content-container">
-                    <!-- Chart and summary will be injected here -->
+                    <!-- Policy details will be injected here -->
                 </div>
             </div>
 
@@ -473,7 +442,6 @@
                     <button id="logout-btn" class="btn btn-danger">Logout</button>
                 </div>
             </div>
-
         </main>
         
         <!-- FLOATING ACTION BUTTON -->
@@ -499,14 +467,38 @@
             </button>
         </nav>
         
-        <!-- LOGOUT CONFIRMATION MODAL -->
+        <!-- NEW: SIDEBAR (for Dark Mode, etc.) -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        <aside id="sidebar" class="sidebar">
+            <h2>Settings</h2>
+            <div class="sidebar-item">
+                <label for="dark-mode-toggle">Dark Mode</label>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </aside>
+
+        <!-- MODALS -->
         <div id="logout-modal" class="modal-overlay">
             <div class="modal-content">
                 <h3>Confirm Logout</h3>
-                <p>Are you sure you want to log out from the app?</p>
+                <p>Are you sure you want to log out?</p>
                 <div class="modal-actions">
                     <button id="cancel-logout-btn" class="btn btn-secondary">Cancel</button>
                     <button id="confirm-logout-btn" class="btn btn-danger">Logout</button>
+                </div>
+            </div>
+        </div>
+        <!-- NEW: DELETE POLICY MODAL -->
+        <div id="delete-policy-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h3>Delete Policy</h3>
+                <p>Are you sure you want to permanently delete this policy? This action cannot be undone.</p>
+                <div class="modal-actions">
+                    <button id="cancel-delete-btn" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-delete-btn" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
@@ -520,7 +512,7 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
       import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-      import { getFirestore, collection, doc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+      import { getFirestore, collection, doc, onSnapshot, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
       document.addEventListener('DOMContentLoaded', () => {
 
@@ -538,22 +530,30 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // --- 2. GLOBAL VARIABLES & ELEMENT DECLARATIONS ---
+        // --- 2. GLOBAL VARIABLES & STATE ---
         let currentUser = null;
         let policyDataUnsubscribe = null;
-        let localPoliciesCache = []; // পলিসির ডেটা লোকালভাবে সেভ করে রাখার জন্য
-        let investmentChart = null;
+        let localPoliciesCache = [];
+        let selectedPolicyId = null; // For viewing details
+        
+        // State for delete mode
+        let isDeleteMode = false;
+        let policyToDeleteId = null;
+        let longPressTimer = null;
 
         // Navigation state
-        let navigationStack = []; // ন্যাভিগেশন হিস্ট্রি রাখার জন্য
+        let navigationStack = [];
         let backPressToastTimer = null;
 
         // Element Selectors
+        const body = document.body;
         const allPages = document.querySelectorAll('.page');
         const bottomNav = document.querySelector('.bottom-nav');
         const navItems = document.querySelectorAll('.nav-item');
         const addPolicyFab = document.getElementById('add-policy-fab');
-        
+        const appHeader = document.querySelector('.app-header');
+        const appHeaderTitle = document.getElementById('app-header-title');
+
         const loginBtn = document.getElementById('login-btn');
         const logoutBtn = document.getElementById('logout-btn');
         const logoutModal = document.getElementById('logout-modal');
@@ -566,67 +566,94 @@
         const policyListContainer = document.getElementById('policy-list-container');
         const overviewContentContainer = document.getElementById('overview-content-container');
         const exitToast = document.getElementById('exit-toast');
+        
+        // New element selectors
+        const hamburgerMenuBtn = document.getElementById('hamburger-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const deletePolicyBtn = document.getElementById('delete-policy-btn');
+        const deletePolicyModal = document.getElementById('delete-policy-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
 
         // --- 3. CORE APP LOGIC: NAVIGATION & PAGE MANAGEMENT ---
-
         /**
-         * নির্দিষ্ট একটি পেজ দেখানোর জন্য মূল ফাংশন
-         * @param {string} pageId - যে পেজটি দেখানো হবে তার আইডি
-         * @param {boolean} addToHistory - এই ন্যাভিগেশনটি হিস্ট্রিতে যোগ করা হবে কিনা
+         * Main function to show a specific page.
+         * @param {string} pageId - The ID of the page to display.
+         * @param {boolean} addToHistory - Whether to add this navigation to the history stack.
          */
         function showPage(pageId, addToHistory = true) {
+            // If we are in delete mode, prevent navigation
+            if (isDeleteMode) {
+                exitDeleteMode();
+                return;
+            }
+
             allPages.forEach(page => page.classList.remove('active'));
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
                 targetPage.classList.add('active');
             }
 
-            // Bottom Nav আইকন-এর active state আপডেট করা
-            navItems.forEach(item => {
-                item.classList.toggle('active', item.dataset.page === pageId);
-            });
+            // Update header title based on page
+            const pageTitles = {
+                'home-page': 'Home', 'add-policy-page': 'Add New Policy',
+                'agent-page': 'Agent Details', 'overview-page': 'Policy Details',
+                'profile-page': 'Profile'
+            };
+            appHeaderTitle.textContent = pageTitles[pageId] || 'My LIC Manager';
+
+            navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageId));
             
-            // শুধু হোম পেজে '+' বাটন দেখানো হবে
-            addPolicyFab.classList.toggle('hidden', pageId !== 'home-page');
+            // Only show FAB on home page and when not in delete mode
+            addPolicyFab.classList.toggle('hidden', pageId !== 'home-page' || isDeleteMode);
 
-            if (addToHistory) {
-                // একই পেজ বারবার stack-এ পুশ করা এড়ানো হচ্ছে
-                if (navigationStack[navigationStack.length - 1] !== pageId) {
-                    navigationStack.push(pageId);
-                }
+            if (addToHistory && navigationStack[navigationStack.length - 1] !== pageId) {
+                navigationStack.push(pageId);
             }
-
-            // যখন Overview পেজ খোলা হবে, তখন চার্ট রেন্ডার করা হবে
+            
+            // Render specific page content if needed
             if (pageId === 'overview-page') {
-                renderOverviewPage(localPoliciesCache);
+                renderOverviewPage();
             }
         }
         
-        // --- 4. BACK BUTTON NAVIGATION SYSTEM ---
-
-        // অ্যাপের শুরুতে একটি প্রাথমিক স্টেট পুশ করা হয়
+        // --- 4. BACK BUTTON & COMPLEX STATE NAVIGATION ---
         history.pushState({ page: 'initial' }, 'Initial State');
 
         window.addEventListener('popstate', (event) => {
-            // যখন ব্যবহারকারী ব্যাক বাটন চাপবে, এই ফাংশনটি কল হবে
-            event.preventDefault(); // ব্রাউজারের ডিফল্ট আচরণ বন্ধ করা হলো
+            event.preventDefault();
             
+            // Priority 1: Close sidebar if it's open
+            if (sidebar.classList.contains('open')) {
+                closeSidebar();
+                history.pushState({ page: 'sidebar-closed' }, 'Sidebar Closed'); // Prevent back from exiting
+                return;
+            }
+
+            // Priority 2: Exit delete mode if active
+            if (isDeleteMode) {
+                exitDeleteMode();
+                history.pushState({ page: 'delete-mode-off' }, 'Delete Mode Off');
+                return;
+            }
+            
+            // Standard page navigation
             if (navigationStack.length > 1) {
-                navigationStack.pop(); // বর্তমান পেজটি stack থেকে সরানো হলো
+                navigationStack.pop();
                 const previousPage = navigationStack[navigationStack.length - 1];
-                showPage(previousPage, false); // আগের পেজে ফিরে যাওয়া হলো, কিন্তু হিস্ট্রিতে যোগ না করে
+                showPage(previousPage, false);
             } else {
-                // Stack-এ একটি পেজ আছে (মানে হোম পেজ), এখন অ্যাপ এক্সিট করার পালা
                 if (backPressToastTimer) {
-                    // যদি ব্যবহারকারী দ্রুত আবার ব্যাক বাটন চাপে, তাহলে অ্যাপ বন্ধ হয়ে যাবে (ওয়েব অ্যাপের ক্ষেত্রে আগের পেজে যাবে)
-                    window.history.back(); 
+                    window.history.back(); // Actually exit/go back
                 } else {
                     exitToast.classList.add('show');
                     backPressToastTimer = setTimeout(() => {
                         exitToast.classList.remove('show');
                         backPressToastTimer = null;
-                    }, 2000); // ২ সেকেন্ডের জন্য টোস্ট দেখানো হবে
-                    // একটি নতুন স্টেট পুশ করা হচ্ছে যাতে ব্যবহারকারী আবার ব্যাক চাপলে popstate ইভেন্ট ট্রিগার হয়
+                    }, 2000);
                     history.pushState({ page: 'exit-prompt' }, 'Exit Prompt');
                 }
             }
@@ -638,17 +665,15 @@
                 document.getElementById('splash-screen').style.display = 'none';
                 if (user) {
                     currentUser = user;
-                    
-                    // পুরনো ব্যবহারকারীর ডেটা লিসেন করা বন্ধ করা
                     if (policyDataUnsubscribe) policyDataUnsubscribe();
                     
                     fetchAndRenderPolicies(user.uid);
                     renderProfilePage(user);
                     
+                    appHeader.style.display = 'flex';
                     bottomNav.style.display = 'flex';
-                    navigationStack = ['home-page']; // লগইনের পর স্ট্যাক রিসেট করা হলো
+                    navigationStack = ['home-page'];
                     showPage('home-page', false);
-                    
                 } else {
                     currentUser = null;
                     if (policyDataUnsubscribe) policyDataUnsubscribe();
@@ -656,55 +681,43 @@
                     policyListContainer.innerHTML = '';
                     overviewContentContainer.innerHTML = '';
 
+                    appHeader.style.display = 'none';
                     bottomNav.style.display = 'none';
                     addPolicyFab.classList.add('hidden');
-                    navigationStack = []; // লগআউটের পর স্ট্যাক খালি করা হলো
+                    navigationStack = [];
                     showPage('welcome-page', false);
                 }
-            }, 1500); // স্প্ল্যাশ স্ক্রিন ১.৫ সেকেন্ড দেখানো হবে
+            }, 1500);
         });
 
-        loginBtn.addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(error => console.error("Sign in error", error));
-        });
-
-        logoutBtn.addEventListener('click', () => {
-            logoutModal.classList.add('show');
-        });
-
-        cancelLogoutBtn.addEventListener('click', () => {
-            logoutModal.classList.remove('show');
-        });
-        
+        loginBtn.addEventListener('click', () => signInWithPopup(auth, provider).catch(error => console.error("Sign in error", error)));
+        logoutBtn.addEventListener('click', () => logoutModal.classList.add('show'));
+        cancelLogoutBtn.addEventListener('click', () => logoutModal.classList.remove('show'));
         confirmLogoutBtn.addEventListener('click', () => {
             signOut(auth).catch(error => console.error("Sign out error", error));
             logoutModal.classList.remove('show');
         });
 
-        // --- 6. FIRESTORE DATA MANAGEMENT ---
+        // --- 6. FIRESTORE & POLICY MANAGEMENT ---
         function fetchAndRenderPolicies(userId) {
             const policiesCollectionRef = collection(db, 'users', userId, 'policies');
             
             policyDataUnsubscribe = onSnapshot(policiesCollectionRef, snapshot => {
-                const policies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                policies.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-                localPoliciesCache = policies; // ডেটা ক্যাশে সেভ করা হলো
+                localPoliciesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                localPoliciesCache.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
                 
-                // শুধুমাত্র হোম পেজের কন্টেন্ট রেন্ডার করা হবে, চার্ট নয়
-                renderHomePage(policies);
-
-                // যদি ব্যবহারকারী overview পেজে থাকে, তাহলে চার্টও আপডেট হবে
+                renderHomePage(localPoliciesCache);
+                // If user is on overview page, re-render it with potentially updated data
                 if (document.getElementById('overview-page').classList.contains('active')) {
-                    renderOverviewPage(policies);
+                    renderOverviewPage();
                 }
-
             }, error => {
                 console.error("Error fetching policies: ", error);
                 policyListContainer.innerHTML = `<p>Could not fetch policy data.</p>`;
             });
         }
 
-        addPolicyForm.addEventListener('submit', (e) => {
+        addPolicyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser) return;
 
@@ -719,23 +732,83 @@
                 term: parseInt(document.getElementById('policyTerm').value),
                 createdAt: serverTimestamp()
             };
-
-            const policiesCollectionRef = collection(db, 'users', currentUser.uid, 'policies');
-            addDoc(policiesCollectionRef, newPolicy)
-                .then(() => {
-                    console.log("Policy successfully added!");
-                    addPolicyForm.reset();
-                    // সফলভাবে যোগ করার পর হোম পেজে ফিরে যাওয়া
-                    history.back(); 
-                })
-                .catch(error => {
-                    console.error("Error adding policy: ", error);
-                    alert("There was an error saving your policy.");
-                });
+            
+            try {
+                const policiesCollectionRef = collection(db, 'users', currentUser.uid, 'policies');
+                await addDoc(policiesCollectionRef, newPolicy);
+                addPolicyForm.reset();
+                history.back(); // Use navigation system to go back
+            } catch (error) {
+                console.error("Error adding policy: ", error);
+                alert("There was an error saving your policy.");
+            }
         });
 
-        // --- 7. UI RENDERING FUNCTIONS ---
+        // --- 7. NEW: POLICY DELETION LOGIC ---
+        function enterDeleteMode(policyId) {
+            isDeleteMode = true;
+            policyToDeleteId = policyId;
 
+            // Highlight the selected card
+            document.querySelectorAll('.policy-card').forEach(card => {
+                card.classList.toggle('delete-mode-selected', card.dataset.id === policyId);
+            });
+
+            // Update header
+            hamburgerMenuBtn.classList.add('hidden');
+            deletePolicyBtn.classList.remove('hidden');
+            appHeaderTitle.textContent = "Delete Mode";
+
+            // Hide FAB
+            addPolicyFab.classList.add('hidden');
+        }
+
+        function exitDeleteMode() {
+            isDeleteMode = false;
+            policyToDeleteId = null;
+            
+            document.querySelectorAll('.policy-card.delete-mode-selected').forEach(card => {
+                card.classList.remove('delete-mode-selected');
+            });
+
+            // Restore header
+            hamburgerMenuBtn.classList.remove('hidden');
+            deletePolicyBtn.classList.add('hidden');
+            appHeaderTitle.textContent = "Home";
+
+            // Show FAB if on home page
+            if (document.getElementById('home-page').classList.contains('active')) {
+                addPolicyFab.classList.remove('hidden');
+            }
+        }
+
+        deletePolicyBtn.addEventListener('click', () => {
+            if (policyToDeleteId) {
+                deletePolicyModal.classList.add('show');
+            }
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            deletePolicyModal.classList.remove('show');
+        });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!currentUser || !policyToDeleteId) return;
+            
+            const policyDocRef = doc(db, 'users', currentUser.uid, 'policies', policyToDeleteId);
+            try {
+                await deleteDoc(policyDocRef);
+                // The onSnapshot listener will automatically update the UI
+            } catch (error) {
+                console.error("Error deleting policy: ", error);
+                alert("Could not delete the policy.");
+            } finally {
+                deletePolicyModal.classList.remove('show');
+                exitDeleteMode();
+            }
+        });
+
+        // --- 8. UI RENDERING FUNCTIONS ---
         function renderHomePage(policies) {
             if (policies.length === 0) {
                 policyListContainer.innerHTML = `
@@ -746,101 +819,127 @@
                     </div>`;
             } else {
                 policyListContainer.innerHTML = policies.map(policy => `
-                    <div class="policy-card">
+                    <div class="policy-card" data-id="${policy.id}">
                         <div class="policy-info"><h4>${policy.holderName}</h4><p>${policy.planName} (${policy.policyNumber})</p></div>
                         <div class="policy-due"><div class="amount">₹${policy.premiumAmount.toLocaleString('en-IN')}</div><div class="date">Due: ${new Date(policy.dueDate).toLocaleDateString('en-GB')}</div></div>
                     </div>`).join('');
-            }
-        }
-        
-        function renderOverviewPage(policies) {
-             if (policies.length === 0) {
-                overviewContentContainer.innerHTML = `
-                    <div class="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                        <h3>No Data to Display</h3>
-                        <p>Add some policies to see your investment overview.</p>
-                    </div>`;
-                return;
-             }
-             
-             // কন্টেইনারে চার্ট এবং টেক্সট যোগ করা হলো
-             overviewContentContainer.innerHTML = `
-                <div id="investment-chart-container">
-                     <canvas id="investmentChart" height="250"></canvas>
-                     <div id="total-investment-text"></div>
-                </div>
-             `;
-             
-             const ctx = document.getElementById('investmentChart')?.getContext('2d');
-             if(!ctx) return;
+                
+                // Add event listeners for click and long-press
+                document.querySelectorAll('.policy-card').forEach(card => {
+                    card.addEventListener('mousedown', (e) => {
+                        // Ignore right-clicks
+                        if (e.button !== 0) return;
+                        longPressTimer = setTimeout(() => {
+                           enterDeleteMode(card.dataset.id);
+                        }, 500); // 500ms for long press
+                    });
+                    card.addEventListener('mouseup', () => clearTimeout(longPressTimer));
+                    card.addEventListener('mouseleave', () => clearTimeout(longPressTimer));
 
-            let totalInvestment = 0;
-            const chartData = {
-                labels: [],
-                datasets: [{ data: [], backgroundColor: ['#005A9C', '#00AEEF', '#4caf50', '#ff9800', '#f44336', '#9c27b0'], borderColor: 'var(--card-bg-color)', borderWidth: 4, hoverOffset: 10 }]
-            };
-            
-            policies.forEach(policy => {
-                const investmentInPolicy = calculateInvestmentForPolicy(policy);
-                totalInvestment += investmentInPolicy;
-                chartData.labels.push(policy.planName || 'Policy');
-                chartData.datasets[0].data.push(investmentInPolicy);
-            });
-            
-            const totalInvestmentText = document.getElementById('total-investment-text');
-            totalInvestmentText.innerHTML = `<div class="amount">₹${totalInvestment.toLocaleString('en-IN')}</div><div class="label">Total Invested</div>`;
-            
-            if(investmentChart) investmentChart.destroy();
-            investmentChart = new Chart(ctx, {
-                type: 'doughnut', data: chartData, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.label}: ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(c.parsed)}` } } } }
-            });
+                    // Add touch events for mobile
+                    card.addEventListener('touchstart', () => {
+                         longPressTimer = setTimeout(() => {
+                           enterDeleteMode(card.dataset.id);
+                        }, 500);
+                    });
+                    card.addEventListener('touchend', () => clearTimeout(longPressTimer));
+                    card.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+
+                    // Regular click listener
+                    card.addEventListener('click', () => {
+                        if (isDeleteMode) {
+                            // If in delete mode, a click should just select/deselect
+                            enterDeleteMode(card.dataset.id);
+                        } else {
+                            // Otherwise, go to details page
+                            selectedPolicyId = card.dataset.id;
+                            showPage('overview-page');
+                        }
+                    });
+                });
+            }
         }
         
-        function calculateInvestmentForPolicy(policy) {
-            const today = new Date();
-            const startDate = new Date(policy.startDate);
-            if (isNaN(startDate.getTime())) return 0;
-            const monthsElapsed = (today.getFullYear() - startDate.getFullYear()) * 12 + (today.getMonth() - startDate.getMonth());
-            let premiumsPaid = 0;
-            switch(policy.frequency) {
-                case 'Monthly': premiumsPaid = monthsElapsed; break;
-                case 'Quarterly': premiumsPaid = Math.floor(monthsElapsed / 3); break;
-                case 'Half-yearly': premiumsPaid = Math.floor(monthsElapsed / 6); break;
-                case 'Yearly': premiumsPaid = Math.floor(monthsElapsed / 12); break;
+        function renderOverviewPage() {
+            if (!selectedPolicyId) {
+                // This could happen if user navigates via bottom bar without selecting a policy
+                overviewContentContainer.innerHTML = `<div class="empty-state"><h3>No Policy Selected</h3><p>Go to the Home screen and tap on a policy to see its details.</p></div>`;
+                return;
             }
-            return Math.max(0, premiumsPaid) * policy.premiumAmount;
+
+            const policy = localPoliciesCache.find(p => p.id === selectedPolicyId);
+            if (!policy) {
+                overviewContentContainer.innerHTML = `<div class="empty-state"><h3>Policy not found</h3><p>The selected policy could not be found. It may have been deleted.</p></div>`;
+                return;
+            }
+
+            const maturity = calculateMaturity(policy);
+
+            overviewContentContainer.innerHTML = `
+                <div class="details-list">
+                    <div class="detail-item"><span class="label">Policy Holder</span><span class="value">${policy.holderName}</span></div>
+                    <div class="detail-item"><span class="label">Policy Number</span><span class="value">${policy.policyNumber}</span></div>
+                    <div class="detail-item"><span class="label">Plan Name</span><span class="value">${policy.planName}</span></div>
+                    <div class="detail-item"><span class="label">Premium Amount</span><span class="value">₹${policy.premiumAmount.toLocaleString('en-IN')} (${policy.frequency})</span></div>
+                    <div class="detail-item"><span class="label">Next Due Date</span><span class="value">${new Date(policy.dueDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
+                    <div class="detail-item"><span class="label">Policy Term</span><span class="value">${policy.term} Years</span></div>
+                    <div class="detail-item"><span class="label">Maturity (Est.)</span><span class="value">₹${maturity.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
+                </div>`;
+        }
+        
+        function calculateMaturity(policy) {
+            const multipliers = { 'Monthly': 12, 'Quarterly': 4, 'Half-yearly': 2, 'Yearly': 1 };
+            const frequencyMultiplier = multipliers[policy.frequency] || 0;
+            const estimatedMaturity = (policy.premiumAmount * frequencyMultiplier * policy.term) * 1.5;
+            return estimatedMaturity;
         }
         
         function renderProfilePage(user) {
             if (!user) return;
             document.getElementById('profile-pic').src = user.photoURL || 'https://i.stack.imgur.com/34AD2.jpg';
-            document.getElementById('profile-name').textContent = user.displayName || 'No Name';
-            document.getElementById('profile-email').textContent = user.email || 'No Email';
+            document.getElementById('profile-name').textContent = user.displayName || 'User Name';
+            document.getElementById('profile-email').textContent = user.email || 'user@email.com';
         }
 
-        // --- 8. EVENT LISTENERS ---
-        
-        // বটম ন্যাভিগেশন বারে ক্লিক করলে পেজ পরিবর্তন হবে
+        // --- 9. NEW: DARK MODE & SIDEBAR LOGIC ---
+        function openSidebar() {
+            sidebar.classList.add('open');
+            sidebarOverlay.classList.add('show');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('show');
+        }
+
+        hamburgerMenuBtn.addEventListener('click', openSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        darkModeToggle.addEventListener('change', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', darkModeToggle.checked);
+        });
+
+        // Check for saved dark mode preference on load
+        function applyInitialTheme() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            darkModeToggle.checked = isDarkMode;
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+            }
+        }
+        applyInitialTheme();
+
+        // --- 10. EVENT LISTENERS ---
         navItems.forEach(item => {
             item.addEventListener('click', () => {
                 const pageId = item.dataset.page;
-                if (!item.disabled) {
-                    showPage(pageId);
-                }
+                if (!item.disabled) showPage(pageId);
             });
         });
 
-        // ফ্লোটিং '+' বাটনে ক্লিক করলে Add Policy পেজ খুলবে
-        addPolicyFab.addEventListener('click', () => {
-             showPage('add-policy-page');
-        });
-        
-        // Add Policy ফর্মের Cancel বাটনে ক্লিক করলে আগের পেজে ফিরে যাবে
-        cancelAddPolicyBtn.addEventListener('click', () => {
-            history.back(); // ন্যাভিগেশন সিস্টেম ব্যবহার করে আগের পেজে ফেরা
-        });
-
+        addPolicyFab.addEventListener('click', () => showPage('add-policy-page'));
+        cancelAddPolicyBtn.addEventListener('click', () => history.back());
       });
     </script>
 </body>
