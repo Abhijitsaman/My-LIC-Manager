@@ -1,25 +1,3 @@
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBVlUVeFjPv0NsrM2P0PdIHEH67E9oHNuU",
-    authDomain: "my-lic-manager.firebaseapp.com",
-    projectId: "my-lic-manager",
-    storageBucket: "my-lic-manager.firebasestorage.app",
-    messagingSenderId: "308816801914",
-    appId: "1:308816801914:web:c7d99398f237f73b14cbc3"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -445,8 +423,22 @@
         .sidebar.open { transform: translateX(0); }
         .sidebar h2 { color: var(--primary-color); margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
 
-        .sidebar-item { display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
+        .sidebar-item { display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; margin-bottom: 1.5rem; }
+        .sidebar-item:last-child { margin-bottom: 0; }
         
+        /* Language Selector Style */
+        .sidebar-item select {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            width: 120px;
+        }
+
         /* Dark mode toggle switch */
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -528,27 +520,27 @@
             <div id="welcome-page" class="page page-full">
                 <div class="welcome-content">
                     <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.24L19.5 8.5 12 12.26 4.5 8.5 12 4.24zM3 8.82V17l9 4.5v-8.68L3 8.82zm18 0L12 12.82v8.68l9-4.5V8.82z"/></svg></div>
-                    <h2>Welcome!</h2>
-                    <p>Manage your LIC policies effortlessly.</p>
+                    <h2 data-lang-key="welcome_title">Welcome!</h2>
+                    <p data-lang-key="welcome_subtitle">Manage your LIC policies effortlessly.</p>
                     <div class="feature-list">
                         <div class="feature-item">
                             <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg></div>
-                            <p>Never miss a premium due date</p>
+                            <p data-lang-key="feature_1">Never miss a premium due date</p>
                         </div>
                         <div class="feature-item">
                             <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></div>
-                            <p>Track your policy growth</p>
+                            <p data-lang-key="feature_2">Track your policy growth</p>
                         </div>
                         <div class="feature-item">
                             <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"/></svg></div>
-                            <p>All your policies in one place</p>
+                            <p data-lang-key="feature_3">All your policies in one place</p>
                         </div>
                     </div>
                 </div>
                 <div class="welcome-footer">
                     <button id="login-btn" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg>
-                        Sign in with Google
+                        <span data-lang-key="signin_google">Sign in with Google</span>
                     </button>
                 </div>
             </div>
@@ -556,17 +548,17 @@
             <!-- PAGE 3: ADD NEW POLICY FORM -->
             <div id="add-policy-page" class="page">
                 <form id="add-policy-form">
-                    <div class="form-group"><label for="policyHolderName">Policy Holder Name</label><input type="text" id="policyHolderName" required></div>
-                    <div class="form-group"><label for="policyNumber">Policy Number</label><input type="text" id="policyNumber" required></div>
-                    <div class="form-group"><label for="planName">Plan Name</label><input type="text" id="planName" required></div>
-                    <div class="form-group"><label for="premiumAmount">Premium Amount (₹)</label><input type="number" id="premiumAmount" required></div>
-                    <div class="form-group"><label for="premiumFrequency">Premium Frequency</label><select id="premiumFrequency" required><option value="Monthly">Monthly</option><option value="Quarterly">Quarterly</option><option value="Half-yearly">Half-yearly</option><option value="Yearly">Yearly</option></select></div>
-                    <div class="form-group"><label for="nextPremiumDueDate">Next Premium Due Date</label><input type="date" id="nextPremiumDueDate" required></div>
-                    <div class="form-group"><label for="policyStartDate">Policy Start Date</label><input type="date" id="policyStartDate" required></div>
-                    <div class="form-group"><label for="policyTerm">Policy Term (in years)</label><input type="number" id="policyTerm" required></div>
+                    <div class="form-group"><label for="policyHolderName" data-lang-key="policy_holder_name_label">Policy Holder Name</label><input type="text" id="policyHolderName" required></div>
+                    <div class="form-group"><label for="policyNumber" data-lang-key="policy_number_label">Policy Number</label><input type="text" id="policyNumber" required></div>
+                    <div class="form-group"><label for="planName" data-lang-key="plan_name_label">Plan Name</label><input type="text" id="planName" required></div>
+                    <div class="form-group"><label for="premiumAmount" data-lang-key="premium_amount_label">Premium Amount (₹)</label><input type="number" id="premiumAmount" required></div>
+                    <div class="form-group"><label for="premiumFrequency" data-lang-key="premium_frequency_label">Premium Frequency</label><select id="premiumFrequency" required><option value="Monthly" data-lang-key="monthly">Monthly</option><option value="Quarterly" data-lang-key="quarterly">Quarterly</option><option value="Half-yearly" data-lang-key="half_yearly">Half-yearly</option><option value="Yearly" data-lang-key="yearly">Yearly</option></select></div>
+                    <div class="form-group"><label for="nextPremiumDueDate" data-lang-key="next_due_date_label">Next Premium Due Date</label><input type="date" id="nextPremiumDueDate" required></div>
+                    <div class="form-group"><label for="policyStartDate" data-lang-key="policy_start_date_label">Policy Start Date</label><input type="date" id="policyStartDate" required></div>
+                    <div class="form-group"><label for="policyTerm" data-lang-key="policy_term_label">Policy Term (in years)</label><input type="number" id="policyTerm" required></div>
                     <div class="form-actions">
-                        <button type="button" id="cancel-add-policy-btn" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Policy</button>
+                        <button type="button" id="cancel-add-policy-btn" class="btn btn-secondary" data-lang-key="cancel_button">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-lang-key="save_policy_button">Save Policy</button>
                     </div>
                 </form>
             </div>
@@ -582,18 +574,17 @@
             <div id="agent-page" class="page page-full">
                 <!-- Blue Header -->
                 <div class="agent-header">
-                    <h2>Trusted LIC Agent</h2>
+                    <h2 data-lang-key="trusted_agent_header">Trusted LIC Agent</h2>
                 </div>
 
                 <div class="agent-content">
                     <!-- Profile Summary Section -->
                     <div class="agent-profile-summary">
-                        <!-- [FIX #1] - Corrected the image source URL -->
                         <img src="https://raw.githubusercontent.com/Abhijitsaman/My-LIC-Manager/main/agent_profile.png" alt="Agent Profile Picture" class="agent-pfp">
                         <div class="agent-intro">
-                            <h3>Tapan Kumar Samanta</h3>
-                            <p class="tagline">"Securing Your Family's Future, Building Lifelong Trust."</p>
-                            <button class="details-toggle" id="toggle-agent-details">Contact & Details</button>
+                            <h3 data-lang-key="agent_name">Tapan Kumar Samanta</h3>
+                            <p class="tagline" data-lang-key="agent_tagline">"Securing Your Family's Future, Building Lifelong Trust."</p>
+                            <button class="details-toggle" id="toggle-agent-details" data-lang-key="contact_details_button">Contact & Details</button>
                         </div>
                     </div>
 
@@ -601,29 +592,29 @@
                     <div class="agent-details-collapsible" id="agent-details-container">
                         <!-- Agent Profile Box -->
                         <div class="detail-box">
-                            <h4 class="detail-box-title">Agent Profile</h4>
+                            <h4 class="detail-box-title" data-lang-key="agent_profile_title">Agent Profile</h4>
                             <ul>
-                                <li><strong>Name:</strong> <span>Tapan Kumar Samanta</span></li>
-                                <li><strong>Address:</strong> <span>West Bengal, Purba Medinipur, PIN - 721626</span></li>
-                                <li><strong>Branch:</strong> <span>Haldia Branch</span></li>
-                                <li><strong>Membership:</strong> <span>DM's Club Member</span></li>
-                                <li><strong>Contact No:</strong> <span>8640870937</span></li>
+                                <li><strong data-lang-key="name_label">Name:</strong> <span data-lang-key="agent_name_value">Tapan Kumar Samanta</span></li>
+                                <li><strong data-lang-key="address_label">Address:</strong> <span data-lang-key="agent_address_value">West Bengal, Purba Medinipur, PIN - 721626</span></li>
+                                <li><strong data-lang-key="branch_label">Branch:</strong> <span data-lang-key="agent_branch_value">Haldia Branch</span></li>
+                                <li><strong data-lang-key="membership_label">Membership:</strong> <span data-lang-key="agent_membership_value">DM's Club Member</span></li>
+                                <li><strong data-lang-key="contact_no_label">Contact No:</strong> <span data-lang-key="agent_contact_value">8640870937</span></li>
                             </ul>
                         </div>
 
                         <!-- Experience & Achievements Box -->
                         <div class="detail-box">
-                            <h4 class="detail-box-title">Experience & Achievements</h4>
+                            <h4 class="detail-box-title" data-lang-key="experience_achievements_title">Experience & Achievements</h4>
                             <ul>
-                                <li><strong>Experience:</strong> <span>Over 15 Years of dedicated service in financial planning.</span></li>
-                                <li><strong>Achievements:</strong> <span>Proud recipient of more than 5 prestigious trophies for outstanding performance and customer satisfaction.</span></li>
+                                <li><strong data-lang-key="experience_label">Experience:</strong> <span data-lang-key="agent_experience_value">Over 15 Years of dedicated service in financial planning.</span></li>
+                                <li><strong data-lang-key="achievements_label">Achievements:</strong> <span data-lang-key="agent_achievements_value">Proud recipient of more than 5 prestigious trophies for outstanding performance and customer satisfaction.</span></li>
                             </ul>
                         </div>
 
                         <!-- Commitment Box -->
                         <div class="detail-box">
-                            <h4 class="detail-box-title">My Commitment to You</h4>
-                            <p>"Your financial security is my top priority. Whether you're planning for your child's future, your retirement, or simply looking for the best protection for your family, I am here to provide honest, transparent, and personalized advice. For any assistance regarding your new or existing LIC policies, please don't hesitate to reach out. I am available 24/7 to support you and ensure your peace of mind."</p>
+                            <h4 class="detail-box-title" data-lang-key="commitment_title">My Commitment to You</h4>
+                            <p data-lang-key="agent_commitment_para">"Your financial security is my top priority. Whether you're planning for your child's future, your retirement, or simply looking for the best protection for your family, I am here to provide honest, transparent, and personalized advice. For any assistance regarding your new or existing LIC policies, please don't hesitate to reach out. I am available 24/7 to support you and ensure your peace of mind."</p>
                         </div>
                     </div>
                 </div>
@@ -642,7 +633,7 @@
                     <img id="profile-pic" src="https://i.stack.imgur.com/34AD2.jpg" alt="Profile Picture" class="profile-pic">
                     <h3 id="profile-name" class="profile-name">User Name</h3>
                     <p id="profile-email" class="profile-email">user@email.com</p>
-                    <button id="logout-btn" class="btn btn-danger">Logout</button>
+                    <button id="logout-btn" class="btn btn-danger" data-lang-key="logout_button">Logout</button>
                 </div>
             </div>
         </main>
@@ -654,60 +645,69 @@
         <nav class="bottom-nav">
             <button class="nav-item active" data-page="home-page">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                <span>Home</span>
+                <span data-lang-key="nav_home">Home</span>
             </button>
             <button class="nav-item" data-page="agent-page">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                <span>Agent</span>
+                <span data-lang-key="nav_agent">Agent</span>
             </button>
             <button class="nav-item" data-page="overview-page">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-                <span>Overview</span>
+                <span data-lang-key="nav_overview">Overview</span>
             </button>
             <button class="nav-item" data-page="profile-page">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                <span>Profile</span>
+                <span data-lang-key="nav_profile">Profile</span>
             </button>
         </nav>
         
         <!-- NEW: SIDEBAR (for Dark Mode, etc.) -->
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
         <aside id="sidebar" class="sidebar">
-            <h2>Settings</h2>
+            <h2 data-lang-key="settings_title">Settings</h2>
             <div class="sidebar-item">
-                <label for="dark-mode-toggle">Dark Mode</label>
+                <label for="dark-mode-toggle" data-lang-key="dark_mode_label">Dark Mode</label>
                 <label class="switch">
                     <input type="checkbox" id="dark-mode-toggle">
                     <span class="slider"></span>
                 </label>
+            </div>
+            <!-- NEW: LANGUAGE SELECTOR ADDED -->
+            <div class="sidebar-item">
+                <label for="language-selector" data-lang-key="language_label">Language</label>
+                <select id="language-selector">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="bn">বাংলা</option>
+                </select>
             </div>
         </aside>
 
         <!-- MODALS -->
         <div id="logout-modal" class="modal-overlay">
             <div class="modal-content">
-                <h3>Confirm Logout</h3>
-                <p>Are you sure you want to log out?</p>
+                <h3 data-lang-key="logout_confirm_title">Confirm Logout</h3>
+                <p data-lang-key="logout_confirm_text">Are you sure you want to log out?</p>
                 <div class="modal-actions">
-                    <button id="cancel-logout-btn" class="btn btn-secondary">Cancel</button>
-                    <button id="confirm-logout-btn" class="btn btn-danger">Logout</button>
+                    <button id="cancel-logout-btn" class="btn btn-secondary" data-lang-key="cancel_button">Cancel</button>
+                    <button id="confirm-logout-btn" class="btn btn-danger" data-lang-key="logout_button">Logout</button>
                 </div>
             </div>
         </div>
         <!-- NEW: DELETE POLICY MODAL -->
         <div id="delete-policy-modal" class="modal-overlay">
             <div class="modal-content">
-                <h3>Delete Policy</h3>
-                <p>Are you sure you want to permanently delete this policy? This action cannot be undone.</p>
+                <h3 data-lang-key="delete_policy_title">Delete Policy</h3>
+                <p data-lang-key="delete_policy_text">Are you sure you want to permanently delete this policy? This action cannot be undone.</p>
                 <div class="modal-actions">
-                    <button id="cancel-delete-btn" class="btn btn-secondary">Cancel</button>
-                    <button id="confirm-delete-btn" class="btn btn-danger">Delete</button>
+                    <button id="cancel-delete-btn" class="btn btn-secondary" data-lang-key="cancel_button">Cancel</button>
+                    <button id="confirm-delete-btn" class="btn btn-danger" data-lang-key="delete_button">Delete</button>
                 </div>
             </div>
         </div>
 
         <!-- EXIT TOAST NOTIFICATION -->
-        <div id="exit-toast">Press back again to exit</div>
+        <div id="exit-toast" data-lang-key="exit_toast_text">Press back again to exit</div>
 
     </div>
 
@@ -715,7 +715,8 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
       import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-      import { getFirestore, collection, doc, onSnapshot, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+      // NEW: Imported getDoc and setDoc for managing language preference
+      import { getFirestore, collection, doc, onSnapshot, addDoc, serverTimestamp, deleteDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
       document.addEventListener('DOMContentLoaded', () => {
 
@@ -739,14 +740,102 @@
         let localPoliciesCache = [];
         let selectedPolicyId = null; // For viewing details
         
-        // State for delete mode
         let isDeleteMode = false;
         let policyToDeleteId = null;
         let longPressTimer = null;
 
-        // Navigation state
         let navigationStack = [];
         let backPressToastTimer = null;
+
+        // NEW: Language state variable
+        let currentLanguage = 'en';
+
+        // NEW: Translations object for multi-language support
+        const translations = {
+            // General & Common
+            "cancel_button": { "en": "Cancel", "hi": "रद्द करें", "bn": "বাতিল" },
+            "logout_button": { "en": "Logout", "hi": "लॉग आउट", "bn": "লগআউট" },
+            "delete_button": { "en": "Delete", "hi": "हटाएं", "bn": "মুছে ফেলুন" },
+            "exit_toast_text": { "en": "Press back again to exit", "hi": "बाहर निकलने के लिए फिर से दबाएं", "bn": "প্রস্থান করতে আবার চাপুন" },
+            // Headers
+            "home_header": { "en": "Home", "hi": "होम", "bn": "হোম" },
+            "add_policy_header": { "en": "Add New Policy", "hi": "नई पॉलिसी जोड़ें", "bn": "নতুন পলিসি যোগ করুন" },
+            "policy_details_header": { "en": "Policy Details", "hi": "पॉलिसी विवरण", "bn": "পলিসির বিবরণ" },
+            "profile_header": { "en": "Profile", "hi": "प्रोफ़ाइल", "bn": "প্রোফাইল" },
+            "delete_mode_header": { "en": "Delete Mode", "hi": "डिलीट मोड", "bn": "ডিলিট মোড" },
+            // Welcome Page
+            "welcome_title": { "en": "Welcome!", "hi": "स्वागत है!", "bn": "স্বাগত!" },
+            "welcome_subtitle": { "en": "Manage your LIC policies effortlessly.", "hi": "अपनी एलआईसी पॉलिसियों को सहजता से प्रबंधित करें।", "bn": "আপনার LIC পলিসিগুলি অনায়াসে পরিচালনা করুন।" },
+            "feature_1": { "en": "Never miss a premium due date", "hi": "प्रीमियम की देय तिथि कभी न चूकें", "bn": "প্রিমিয়ামের নির্ধারিত তারিখ কখনো মিস করবেন না" },
+            "feature_2": { "en": "Track your policy growth", "hi": "अपनी पॉलिसी वृद्धि को ट्रैक करें", "bn": "আপনার পলিসির বৃদ্ধি ট্র্যাক করুন" },
+            "feature_3": { "en": "All your policies in one place", "hi": "आपकी सभी पॉलिसियाँ एक ही स्थान पर", "bn": "আপনার সমস্ত পলিসি এক জায়গায়" },
+            "signin_google": { "en": "Sign in with Google", "hi": "Google से साइन इन करें", "bn": "Google দিয়ে সাইন ইন করুন" },
+            // Bottom Navigation
+            "nav_home": { "en": "Home", "hi": "होम", "bn": "হোম" },
+            "nav_agent": { "en": "Agent", "hi": "एजेंट", "bn": "এজেন্ট" },
+            "nav_overview": { "en": "Overview", "hi": "अवलोकन", "bn": "ওভারভিউ" },
+            "nav_profile": { "en": "Profile", "hi": "प्रोफ़ाइल", "bn": "প্রোফাইল" },
+            // Sidebar
+            "settings_title": { "en": "Settings", "hi": "सेटिंग्स", "bn": "সেটিংস" },
+            "dark_mode_label": { "en": "Dark Mode", "hi": "डार्क मोड", "bn": "ডার্ক মোড" },
+            "language_label": { "en": "Language", "hi": "भाषा", "bn": "ভাষা" },
+            // Add/Edit Policy Form
+            "policy_holder_name_label": { "en": "Policy Holder Name", "hi": "पॉलिसी धारक का नाम", "bn": "পলিসি হোল্ডারের নাম" },
+            "policy_number_label": { "en": "Policy Number", "hi": "पॉलिसी संख्या", "bn": "পলিসি নম্বর" },
+            "plan_name_label": { "en": "Plan Name", "hi": "योजना का नाम", "bn": "প্ল্যানের নাম" },
+            "premium_amount_label": { "en": "Premium Amount (₹)", "hi": "प्रीमियम राशि (₹)", "bn": "প্রিমিয়ামের পরিমাণ (₹)" },
+            "premium_frequency_label": { "en": "Premium Frequency", "hi": "प्रीमियम आवृत्ति", "bn": "প্রিমিয়ামের ফ্রিকোয়েন্সি" },
+            "next_due_date_label": { "en": "Next Premium Due Date", "hi": "अगली प्रीमियम देय तिथि", "bn": "পরবর্তী প্রিমিয়ামের তারিখ" },
+            "policy_start_date_label": { "en": "Policy Start Date", "hi": "पॉलिसी प्रारंभ तिथि", "bn": "পলিসি শুরুর তারিখ" },
+            "policy_term_label": { "en": "Policy Term (in years)", "hi": "पॉलिसी अवधि (वर्षों में)", "bn": "পলিসির মেয়াদ (বছরে)" },
+            "save_policy_button": { "en": "Save Policy", "hi": "पॉलिसी सहेजें", "bn": "পলিসি সংরক্ষণ করুন" },
+            "monthly": { "en": "Monthly", "hi": "मासिक", "bn": "মাসিক" },
+            "quarterly": { "en": "Quarterly", "hi": "त्रैमासिक", "bn": "ত্রৈমাসিক" },
+            "half_yearly": { "en": "Half-yearly", "hi": "अर्ध-वार्षिक", "bn": "অর্ধ-বার্ষিক" },
+            "yearly": { "en": "Yearly", "hi": "वार्षिक", "bn": "বার্ষিক" },
+            // Home Page (Policy List)
+            "due_date_prefix": { "en": "Due:", "hi": "देय:", "bn": "দেয়:" },
+            "no_policies_found": { "en": "No Policies Found", "hi": "कोई पॉलिसी नहीं मिली", "bn": "কোনো পলিসি পাওয়া যায়নি" },
+            "add_first_policy_prompt": { "en": "Click the '+' button below to add your first policy.", "hi": "अपनी पहली पॉलिसी जोड़ने के लिए नीचे '+' बटन पर क्लिक करें।", "bn": "আপনার প্রথম পলিসি যোগ করতে নিচের '+' বোতামে ক্লিক করুন।" },
+            // Policy Details / Overview
+            "no_policy_selected": { "en": "No Policy Selected", "hi": "कोई पॉलिसी चयनित नहीं है", "bn": "কোনো পলিসি নির্বাচন করা হয়নি" },
+            "select_policy_prompt": { "en": "Go to the Home screen and tap on a policy to see its details.", "hi": "होम स्क्रीन पर जाएं और विवरण देखने के लिए किसी पॉलिसी पर टैप करें।", "bn": "হোম স্ক্রিনে যান এবং বিস্তারিত দেখতে একটি পলিসিতে ট্যাপ করুন।" },
+            "policy_holder_label": { "en": "Policy Holder", "hi": "पॉलिसी धारक", "bn": "পলিসি হোল্ডার" },
+            "policy_number_label": { "en": "Policy Number", "hi": "पॉलिसी संख्या", "bn": "পলিসি নম্বর" },
+            "plan_name_label": { "en": "Plan Name", "hi": "योजना का नाम", "bn": "প্ল্যানের নাম" },
+            "premium_amount_details_label": { "en": "Premium Amount", "hi": "प्रीमियम राशि", "bn": "প্রিমিয়ামের পরিমাণ" },
+            "next_due_date_details_label": { "en": "Next Due Date", "hi": "अगली देय तिथि", "bn": "পরবর্তী প্রদেয় তারিখ" },
+            "policy_term_details_label": { "en": "Policy Term", "hi": "पॉलिसी अवधि", "bn": "পলিসির মেয়াদ" },
+            "maturity_est_label": { "en": "Maturity (Est.)", "hi": "परिपक्वता (अनुमानित)", "bn": "ম্যাচুরিটি (আনুমানিক)" },
+            // Agent Page
+            "trusted_agent_header": { "en": "Trusted LIC Agent", "hi": "विश्वसनीय एलआईसी एजेंट", "bn": "বিশ্বস্ত LIC এজেন্ট" },
+            "agent_name": { "en": "Tapan Kumar Samanta", "hi": "तपन कुमार सामंत", "bn": "তপন কুমার সামন্ত" },
+            "agent_tagline": { "en": "\"Securing Your Family's Future, Building Lifelong Trust.\"", "hi": "\"आपके परिवार के भविष्य को सुरक्षित करना, आजीवन विश्वास का निर्माण करना।\"", "bn": "\"আপনার পরিবারের ভবিষ্যৎ সুরক্ষিত করা, আজীবন আস্থা তৈরি করা।\"" },
+            "contact_details_button": { "en": "Contact & Details", "hi": "संपर्क और विवरण", "bn": "যোগাযোগ ও বিবরণ" },
+            "agent_profile_title": { "en": "Agent Profile", "hi": "एजेंट प्रोफ़ाइल", "bn": "এজেন্ট প্রোফাইল" },
+            "experience_achievements_title": { "en": "Experience & Achievements", "hi": "अनुभव और उपलब्धियाँ", "bn": "অভিজ্ঞতা ও অর্জন" },
+            "commitment_title": { "en": "My Commitment to You", "hi": "आपके प्रति मेरी प्रतिबद्धता", "bn": "আপনার প্রতি আমার প্রতিশ্রুতি" },
+            "name_label": { "en": "Name:", "hi": "नाम:", "bn": "নাম:" },
+            "address_label": { "en": "Address:", "hi": "पता:", "bn": "ঠিকানা:" },
+            "branch_label": { "en": "Branch:", "hi": "शाखा:", "bn": "শাখা:" },
+            "membership_label": { "en": "Membership:", "hi": "सदस्यता:", "bn": "সদস্যপদ:" },
+            "contact_no_label": { "en": "Contact No:", "hi": "संपर्क नंबर:", "bn": "যোগাযোগ নম্বর:" },
+            "experience_label": { "en": "Experience:", "hi": "अनुभव:", "bn": "অভিজ্ঞতা:" },
+            "achievements_label": { "en": "Achievements:", "hi": "उपलब्धियाँ:", "bn": "অর্জন:" },
+            "agent_name_value": { "en": "Tapan Kumar Samanta", "hi": "तपन कुमार सामंत", "bn": "তপন কুমার সামন্ত" },
+            "agent_address_value": { "en": "West Bengal, Purba Medinipur, PIN - 721626", "hi": "पश्चिम बंगाल, पुरबा मेदिनीपुर, पिन - 721626", "bn": "পশ্চিমবঙ্গ, পূর্ব মেদিনীপুর, পিন - ৭২১৬২৬" },
+            "agent_branch_value": { "en": "Haldia Branch", "hi": "हल्दिया शाखा", "bn": "হলদিয়া শাখা" },
+            "agent_membership_value": { "en": "DM's Club Member", "hi": "डीएम क्लब सदस्य", "bn": "ডিএম'স ক্লাব সদস্য" },
+            "agent_contact_value": { "en": "8640870937", "hi": "8640870937", "bn": "8640870937" },
+            "agent_experience_value": { "en": "Over 15 Years of dedicated service in financial planning.", "hi": "वित्तीय नियोजन में 15 से अधिक वर्षों की समर्पित सेवा।", "bn": "আর্থিক পরিকল্পনায় ১৫ বছরেরও বেশি সময় ধরে নিবেদিত পরিষেবা।" },
+            "agent_achievements_value": { "en": "Proud recipient of more than 5 prestigious trophies for outstanding performance and customer satisfaction.", "hi": "उत्कृष्ट प्रदर्शन और ग्राहक संतुष्टि के लिए 5 से अधिक प्रतिष्ठित ट्रॉफियों के गौरवान्वित प्राप्तकर्ता।", "bn": "অসামান্য কর্মক্ষমতা এবং গ্রাহক সন্তুষ্টির জন্য ৫টিরও বেশি মর্যাদাপূর্ণ ট্রফির গর্বিত প্রাপক।" },
+            "agent_commitment_para": { "en": "\"Your financial security is my top priority. Whether you're planning for your child's future, your retirement, or simply looking for the best protection for your family, I am here to provide honest, transparent, and personalized advice. For any assistance regarding your new or existing LIC policies, please don't hesitate to reach out. I am available 24/7 to support you and ensure your peace of mind.\"", "hi": "\"आपकी वित्तीय सुरक्षा मेरी सर्वोच्च प्राथमिकता है। चाहे आप अपने बच्चे के भविष्य, अपनी सेवानिवृत्ति की योजना बना रहे हों, या बस अपने परिवार के लिए सर्वोत्तम सुरक्षा की तलाश में हों, मैं यहां ईमानदार, पारदर्शी और व्यक्तिगत सलाह प्रदान करने के लिए हूं। अपनी नई या मौजूदा एलआईसी पॉलिसियों के संबंध में किसी भी सहायता के लिए, कृपया संपर्क करने में संकोच न करें। मैं आपकी सहायता करने और आपकी मन की शांति सुनिश्चित करने के लिए 24/7 उपलब्ध हूं।\"", "bn": "\"আপনার আর্থিক নিরাপত্তা আমার সর্বোচ্চ অগ্রাধিকার। আপনি আপনার সন্তানের ভবিষ্যৎ, আপনার অবসর, বা কেবল আপনার পরিবারের জন্য সেরা সুরক্ষার সন্ধান করছেন কিনা, আমি সৎ, স্বচ্ছ এবং ব্যক্তিগতকৃত পরামর্শ দিতে এখানে আছি। আপনার নতুন বা বিদ্যমান LIC পলিসি সংক্রান্ত যেকোনো সহায়তার জন্য, অনুগ্রহ করে যোগাযোগ করতে দ্বিধা করবেন না। আমি আপনাকে সমর্থন করতে এবং আপনার মানসিক শান্তি নিশ্চিত করতে ২৪/৭ উপলব্ধ।\"" },
+            // Modals
+            "logout_confirm_title": { "en": "Confirm Logout", "hi": "लॉगआउट की पुष्टि करें", "bn": "লগআউট নিশ্চিত করুন" },
+            "logout_confirm_text": { "en": "Are you sure you want to log out?", "hi": "क्या आप वाकई लॉग आउट करना चाहते हैं?", "bn": "আপনি কি নিশ্চিত যে আপনি লগ আউট করতে চান?" },
+            "delete_policy_title": { "en": "Delete Policy", "hi": "पॉलिसी हटाएं", "bn": "পলিসি মুছুন" },
+            "delete_policy_text": { "en": "Are you sure you want to permanently delete this policy? This action cannot be undone.", "hi": "क्या आप वाकई इस पॉलिसी को स्थायी रूप से हटाना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।", "bn": "আপনি কি নিশ্চিত যে আপনি স্থায়ীভাবে এই পলিসিটি মুছে ফেলতে চান? এই পদক্ষেপটি আর ফেরানো যাবে না।" }
+        };
 
         // Element Selectors
         const body = document.body;
@@ -756,21 +845,16 @@
         const addPolicyFab = document.getElementById('add-policy-fab');
         const appHeader = document.querySelector('.app-header');
         const appHeaderTitle = document.getElementById('app-header-title');
-
         const loginBtn = document.getElementById('login-btn');
         const logoutBtn = document.getElementById('logout-btn');
         const logoutModal = document.getElementById('logout-modal');
         const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
         const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
-        
         const addPolicyForm = document.getElementById('add-policy-form');
         const cancelAddPolicyBtn = document.getElementById('cancel-add-policy-btn');
-        
         const policyListContainer = document.getElementById('policy-list-container');
         const overviewContentContainer = document.getElementById('overview-content-container');
         const exitToast = document.getElementById('exit-toast');
-        
-        // New element selectors
         const hamburgerMenuBtn = document.getElementById('hamburger-menu-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -779,65 +863,140 @@
         const deletePolicyModal = document.getElementById('delete-policy-modal');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        
-        // Agent Page element selectors (NEW)
         const toggleAgentDetailsBtn = document.getElementById('toggle-agent-details');
         const agentDetailsContainer = document.getElementById('agent-details-container');
+        
+        // NEW: Language selector element
+        const languageSelector = document.getElementById('language-selector');
 
+        // --- NEW: MULTI-LANGUAGE FUNCTIONS ---
+
+        /**
+         * Sets the application's language and updates all relevant UI text.
+         * @param {string} lang - The language code ('en', 'hi', 'bn').
+         */
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.documentElement.lang = lang; // Set the lang attribute on the <html> element
+            
+            // Update all elements with a data-lang-key attribute
+            document.querySelectorAll('[data-lang-key]').forEach(element => {
+                const key = element.dataset.langKey;
+                if (translations[key] && translations[key][lang]) {
+                    element.textContent = translations[key][lang];
+                }
+            });
+
+            // Update the header title based on the currently active page
+            const activePage = document.querySelector('.page.active');
+            if (activePage) {
+                updateHeaderTitle(activePage.id);
+            }
+            
+            // Re-render dynamic content that depends on language
+            if (document.getElementById('home-page').classList.contains('active')) {
+                renderHomePage(localPoliciesCache);
+            }
+            if (document.getElementById('overview-page').classList.contains('active')) {
+                renderOverviewPage();
+            }
+            
+            // Ensure the dropdown shows the correct selection
+            languageSelector.value = lang;
+        }
+
+        /**
+         * Saves the user's selected language preference to Firestore.
+         * @param {string} lang - The language code to save.
+         */
+        async function saveLanguagePreference(lang) {
+            if (!currentUser) return;
+            try {
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                // Use setDoc with merge:true to create/update the field without overwriting other data
+                await setDoc(userDocRef, { languagePreference: lang }, { merge: true });
+            } catch (error) {
+                console.error("Error saving language preference: ", error);
+            }
+        }
+
+        /**
+         * Loads the user's language preference from Firestore or defaults to English.
+         */
+        async function loadLanguagePreference() {
+            if (!currentUser) {
+                setLanguage('en'); // Default for non-logged-in users
+                return;
+            }
+            try {
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists() && userDoc.data().languagePreference) {
+                    setLanguage(userDoc.data().languagePreference);
+                } else {
+                    setLanguage('en'); // Default if no preference is saved
+                }
+            } catch (error) {
+                console.error("Error loading language preference: ", error);
+                setLanguage('en'); // Fallback to English on error
+            }
+        }
 
         // --- 3. CORE APP LOGIC: NAVIGATION & PAGE MANAGEMENT ---
+
         /**
-         * Main function to show a specific page.
-         * @param {string} pageId - The ID of the page to display.
-         * @param {boolean} addToHistory - Whether to add this navigation to the history stack.
+         * Updates the main app header title based on the current page.
+         * @param {string} pageId - The ID of the currently active page.
          */
+        function updateHeaderTitle(pageId) {
+            const pageTitleKeys = {
+                'home-page': 'home_header', 'add-policy-page': 'add_policy_header',
+                'overview-page': 'policy_details_header', 'profile-page': 'profile_header'
+            };
+            const titleKey = pageTitleKeys[pageId];
+            if (titleKey && translations[titleKey] && translations[titleKey][currentLanguage]) {
+                appHeaderTitle.textContent = translations[titleKey][currentLanguage];
+            } else if (!titleKey) {
+                 // For pages like welcome, agent, splash that have no main header
+                 appHeaderTitle.textContent = '';
+            } else {
+                 appHeaderTitle.textContent = 'My LIC Manager'; // Fallback
+            }
+        }
+
         function showPage(pageId, addToHistory = true) {
-            // If we are in delete mode, prevent navigation
             if (isDeleteMode) {
                 exitDeleteMode();
                 return;
             }
 
-            // [FIX #2 START] - Correctly hide/show pages to prevent content overlap.
-            // This logic directly manipulates the `display` style to override CSS
-            // specificity issues that caused the Agent page content to appear on other screens.
             allPages.forEach(page => {
                 page.style.display = 'none';
-                page.classList.remove('active'); // Also remove active class for other logic
+                page.classList.remove('active');
             });
 
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
-                // Set the correct display property. 'agent-page' uses 'block', others use 'flex'.
                 targetPage.style.display = (pageId === 'agent-page') ? 'block' : 'flex';
-                targetPage.classList.add('active'); // Re-add 'active' for animations and other selectors
+                targetPage.classList.add('active');
             }
-            // [FIX #2 END]
-
-            // Show or hide the main app header based on the active page
+            
             const pagesWithCustomHeader = ['splash-screen', 'welcome-page', 'agent-page'];
             if (pagesWithCustomHeader.includes(pageId)) {
                 appHeader.style.display = 'none';
             } else {
                 appHeader.style.display = 'flex';
-                // Update header title for pages with the main header
-                const pageTitles = {
-                    'home-page': 'Home', 'add-policy-page': 'Add New Policy',
-                    'overview-page': 'Policy Details', 'profile-page': 'Profile'
-                };
-                appHeaderTitle.textContent = pageTitles[pageId] || 'My LIC Manager';
+                // Update header title using the new centralized function
+                updateHeaderTitle(pageId);
             }
 
             navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageId));
-            
-            // Only show FAB on home page and when not in delete mode
             addPolicyFab.classList.toggle('hidden', pageId !== 'home-page' || isDeleteMode);
 
             if (addToHistory && navigationStack[navigationStack.length - 1] !== pageId) {
                 navigationStack.push(pageId);
             }
             
-            // Render specific page content if needed
             if (pageId === 'overview-page') {
                 renderOverviewPage();
             }
@@ -849,28 +1008,25 @@
         window.addEventListener('popstate', (event) => {
             event.preventDefault();
             
-            // Priority 1: Close sidebar if it's open
             if (sidebar.classList.contains('open')) {
                 closeSidebar();
-                history.pushState({ page: 'sidebar-closed' }, 'Sidebar Closed'); // Prevent back from exiting
+                history.pushState({ page: 'sidebar-closed' }, 'Sidebar Closed');
                 return;
             }
 
-            // Priority 2: Exit delete mode if active
             if (isDeleteMode) {
                 exitDeleteMode();
                 history.pushState({ page: 'delete-mode-off' }, 'Delete Mode Off');
                 return;
             }
             
-            // Standard page navigation
             if (navigationStack.length > 1) {
                 navigationStack.pop();
                 const previousPage = navigationStack[navigationStack.length - 1];
                 showPage(previousPage, false);
             } else {
                 if (backPressToastTimer) {
-                    window.history.back(); // Actually exit/go back
+                    window.history.back();
                 } else {
                     exitToast.classList.add('show');
                     backPressToastTimer = setTimeout(() => {
@@ -883,32 +1039,40 @@
         });
 
         // --- 5. AUTHENTICATION ---
-        onAuthStateChanged(auth, user => {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.display = 'none';
-                if (user) {
-                    currentUser = user;
-                    if (policyDataUnsubscribe) policyDataUnsubscribe();
-                    
-                    fetchAndRenderPolicies(user.uid);
-                    renderProfilePage(user);
-                    
-                    bottomNav.style.display = 'flex';
-                    navigationStack = ['home-page'];
-                    showPage('home-page', false);
-                } else {
-                    currentUser = null;
-                    if (policyDataUnsubscribe) policyDataUnsubscribe();
-                    localPoliciesCache = [];
-                    policyListContainer.innerHTML = '';
-                    overviewContentContainer.innerHTML = '';
+        // MODIFIED: onAuthStateChanged is now async to await language loading
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                // NEW: Load language preference as soon as user is authenticated
+                await loadLanguagePreference();
 
-                    appHeader.style.display = 'none';
-                    bottomNav.style.display = 'none';
-                    addPolicyFab.classList.add('hidden');
-                    navigationStack = [];
-                    showPage('welcome-page', false);
-                }
+                if (policyDataUnsubscribe) policyDataUnsubscribe();
+                fetchAndRenderPolicies(user.uid);
+                renderProfilePage(user);
+                
+                bottomNav.style.display = 'flex';
+                navigationStack = ['home-page'];
+                setTimeout(() => showPage('home-page', false), 100);
+            } else {
+                currentUser = null;
+                 // NEW: Set to default language on logout
+                await loadLanguagePreference();
+
+                if (policyDataUnsubscribe) policyDataUnsubscribe();
+                localPoliciesCache = [];
+                policyListContainer.innerHTML = '';
+                overviewContentContainer.innerHTML = '';
+
+                appHeader.style.display = 'none';
+                bottomNav.style.display = 'none';
+                addPolicyFab.classList.add('hidden');
+                navigationStack = [];
+                showPage('welcome-page', false);
+            }
+            // Hide splash screen after a short delay
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) splash.classList.remove('active');
             }, 1500);
         });
 
@@ -929,7 +1093,6 @@
                 localPoliciesCache.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
                 
                 renderHomePage(localPoliciesCache);
-                // If user is on overview page, re-render it with potentially updated data
                 if (document.getElementById('overview-page').classList.contains('active')) {
                     renderOverviewPage();
                 }
@@ -959,7 +1122,7 @@
                 const policiesCollectionRef = collection(db, 'users', currentUser.uid, 'policies');
                 await addDoc(policiesCollectionRef, newPolicy);
                 addPolicyForm.reset();
-                history.back(); // Use navigation system to go back
+                history.back();
             } catch (error) {
                 console.error("Error adding policy: ", error);
                 alert("There was an error saving your policy.");
@@ -971,17 +1134,15 @@
             isDeleteMode = true;
             policyToDeleteId = policyId;
 
-            // Highlight the selected card
             document.querySelectorAll('.policy-card').forEach(card => {
                 card.classList.toggle('delete-mode-selected', card.dataset.id === policyId);
             });
 
-            // Update header
             hamburgerMenuBtn.classList.add('hidden');
             deletePolicyBtn.classList.remove('hidden');
-            appHeaderTitle.textContent = "Delete Mode";
+            // MODIFIED: Use translations for header
+            appHeaderTitle.textContent = translations.delete_mode_header[currentLanguage];
 
-            // Hide FAB
             addPolicyFab.classList.add('hidden');
         }
 
@@ -993,12 +1154,11 @@
                 card.classList.remove('delete-mode-selected');
             });
 
-            // Restore header
             hamburgerMenuBtn.classList.remove('hidden');
-            deletePolicyBtn.add('hidden');
-            appHeaderTitle.textContent = "Home";
+            deletePolicyBtn.classList.add('hidden');
+            // MODIFIED: Use translations for header
+            appHeaderTitle.textContent = translations.home_header[currentLanguage];
 
-            // Show FAB if on home page
             if (document.getElementById('home-page').classList.contains('active')) {
                 addPolicyFab.classList.remove('hidden');
             }
@@ -1009,18 +1169,12 @@
                 deletePolicyModal.classList.add('show');
             }
         });
-
-        cancelDeleteBtn.addEventListener('click', () => {
-            deletePolicyModal.classList.remove('show');
-        });
-
+        cancelDeleteBtn.addEventListener('click', () => deletePolicyModal.classList.remove('show'));
         confirmDeleteBtn.addEventListener('click', async () => {
             if (!currentUser || !policyToDeleteId) return;
-            
             const policyDocRef = doc(db, 'users', currentUser.uid, 'policies', policyToDeleteId);
             try {
                 await deleteDoc(policyDocRef);
-                // The onSnapshot listener will automatically update the UI
             } catch (error) {
                 console.error("Error deleting policy: ", error);
                 alert("Could not delete the policy.");
@@ -1032,48 +1186,35 @@
 
         // --- 8. UI RENDERING FUNCTIONS ---
         function renderHomePage(policies) {
+            // MODIFIED: Uses translations for empty state and "Due" prefix
             if (policies.length === 0) {
                 policyListContainer.innerHTML = `
                     <div class="empty-state">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"/></svg>
-                        <h3>No Policies Found</h3>
-                        <p>Click the '+' button below to add your first policy.</p>
+                        <h3 data-lang-key="no_policies_found">${translations.no_policies_found[currentLanguage]}</h3>
+                        <p data-lang-key="add_first_policy_prompt">${translations.add_first_policy_prompt[currentLanguage]}</p>
                     </div>`;
             } else {
                 policyListContainer.innerHTML = policies.map(policy => `
                     <div class="policy-card" data-id="${policy.id}">
                         <div class="policy-info"><h4>${policy.holderName}</h4><p>${policy.planName} (${policy.policyNumber})</p></div>
-                        <div class="policy-due"><div class="amount">₹${policy.premiumAmount.toLocaleString('en-IN')}</div><div class="date">Due: ${new Date(policy.dueDate).toLocaleDateString('en-GB')}</div></div>
+                        <div class="policy-due"><div class="amount">₹${policy.premiumAmount.toLocaleString('en-IN')}</div><div class="date">${translations.due_date_prefix[currentLanguage]} ${new Date(policy.dueDate).toLocaleDateString('en-GB')}</div></div>
                     </div>`).join('');
                 
-                // Add event listeners for click and long-press
                 document.querySelectorAll('.policy-card').forEach(card => {
                     card.addEventListener('mousedown', (e) => {
-                        // Ignore right-clicks
                         if (e.button !== 0) return;
-                        longPressTimer = setTimeout(() => {
-                           enterDeleteMode(card.dataset.id);
-                        }, 500); // 500ms for long press
+                        longPressTimer = setTimeout(() => enterDeleteMode(card.dataset.id), 500);
                     });
                     card.addEventListener('mouseup', () => clearTimeout(longPressTimer));
                     card.addEventListener('mouseleave', () => clearTimeout(longPressTimer));
-
-                    // Add touch events for mobile
-                    card.addEventListener('touchstart', () => {
-                         longPressTimer = setTimeout(() => {
-                           enterDeleteMode(card.dataset.id);
-                        }, 500);
-                    });
+                    card.addEventListener('touchstart', () => longPressTimer = setTimeout(() => enterDeleteMode(card.dataset.id), 500));
                     card.addEventListener('touchend', () => clearTimeout(longPressTimer));
                     card.addEventListener('touchmove', () => clearTimeout(longPressTimer));
-
-                    // Regular click listener
                     card.addEventListener('click', () => {
                         if (isDeleteMode) {
-                            // If in delete mode, a click should just select/deselect
                             enterDeleteMode(card.dataset.id);
                         } else {
-                            // Otherwise, go to details page
                             selectedPolicyId = card.dataset.id;
                             showPage('overview-page');
                         }
@@ -1083,9 +1224,9 @@
         }
         
         function renderOverviewPage() {
+            // MODIFIED: Uses translations for labels and empty state
             if (!selectedPolicyId) {
-                // This could happen if user navigates via bottom bar without selecting a policy
-                overviewContentContainer.innerHTML = `<div class="empty-state"><h3>No Policy Selected</h3><p>Go to the Home screen and tap on a policy to see its details.</p></div>`;
+                overviewContentContainer.innerHTML = `<div class="empty-state"><h3 data-lang-key="no_policy_selected">${translations.no_policy_selected[currentLanguage]}</h3><p data-lang-key="select_policy_prompt">${translations.select_policy_prompt[currentLanguage]}</p></div>`;
                 return;
             }
 
@@ -1099,13 +1240,13 @@
 
             overviewContentContainer.innerHTML = `
                 <div class="details-list">
-                    <div class="detail-item"><span class="label">Policy Holder</span><span class="value">${policy.holderName}</span></div>
-                    <div class="detail-item"><span class="label">Policy Number</span><span class="value">${policy.policyNumber}</span></div>
-                    <div class="detail-item"><span class="label">Plan Name</span><span class="value">${policy.planName}</span></div>
-                    <div class="detail-item"><span class="label">Premium Amount</span><span class="value">₹${policy.premiumAmount.toLocaleString('en-IN')} (${policy.frequency})</span></div>
-                    <div class="detail-item"><span class="label">Next Due Date</span><span class="value">${new Date(policy.dueDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
-                    <div class="detail-item"><span class="label">Policy Term</span><span class="value">${policy.term} Years</span></div>
-                    <div class="detail-item"><span class="label">Maturity (Est.)</span><span class="value">₹${maturity.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
+                    <div class="detail-item"><span class="label">${translations.policy_holder_label[currentLanguage]}</span><span class="value">${policy.holderName}</span></div>
+                    <div class="detail-item"><span class="label">${translations.policy_number_label[currentLanguage]}</span><span class="value">${policy.policyNumber}</span></div>
+                    <div class="detail-item"><span class="label">${translations.plan_name_label[currentLanguage]}</span><span class="value">${policy.planName}</span></div>
+                    <div class="detail-item"><span class="label">${translations.premium_amount_details_label[currentLanguage]}</span><span class="value">₹${policy.premiumAmount.toLocaleString('en-IN')} (${policy.frequency})</span></div>
+                    <div class="detail-item"><span class="label">${translations.next_due_date_details_label[currentLanguage]}</span><span class="value">${new Date(policy.dueDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
+                    <div class="detail-item"><span class="label">${translations.policy_term_details_label[currentLanguage]}</span><span class="value">${policy.term} Years</span></div>
+                    <div class="detail-item"><span class="label">${translations.maturity_est_label[currentLanguage]}</span><span class="value">₹${maturity.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
                 </div>`;
         }
         
@@ -1142,13 +1283,10 @@
             localStorage.setItem('darkMode', darkModeToggle.checked);
         });
 
-        // Check for saved dark mode preference on load
         function applyInitialTheme() {
             const isDarkMode = localStorage.getItem('darkMode') === 'true';
             darkModeToggle.checked = isDarkMode;
-            if (isDarkMode) {
-                body.classList.add('dark-mode');
-            }
+            if (isDarkMode) body.classList.add('dark-mode');
         }
         applyInitialTheme();
 
@@ -1162,13 +1300,18 @@
 
         addPolicyFab.addEventListener('click', () => showPage('add-policy-page'));
         cancelAddPolicyBtn.addEventListener('click', () => history.back());
-
-        // Agent Page details toggle listener (NEW)
+        
         if (toggleAgentDetailsBtn) {
-            toggleAgentDetailsBtn.addEventListener('click', () => {
-                agentDetailsContainer.classList.toggle('show');
-            });
+            toggleAgentDetailsBtn.addEventListener('click', () => agentDetailsContainer.classList.toggle('show'));
         }
+
+        // NEW: Event listener for the language selector dropdown
+        languageSelector.addEventListener('change', (e) => {
+            const selectedLang = e.target.value;
+            setLanguage(selectedLang); // Update the UI immediately
+            saveLanguagePreference(selectedLang); // Save the preference to Firebase
+        });
+
       });
     </script>
 </body>
