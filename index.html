@@ -1,3 +1,25 @@
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBVlUVeFjPv0NsrM2P0PdIHEH67E9oHNuU",
+    authDomain: "my-lic-manager.firebaseapp.com",
+    projectId: "my-lic-manager",
+    storageBucket: "my-lic-manager.firebasestorage.app",
+    messagingSenderId: "308816801914",
+    appId: "1:308816801914:web:c7d99398f237f73b14cbc3"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -566,7 +588,8 @@
                 <div class="agent-content">
                     <!-- Profile Summary Section -->
                     <div class="agent-profile-summary">
-                        <img src="https://raw.githubusercontent.com/YourGitHubUsername/YourRepoName/main/agent_profile.png" alt="Agent Profile Picture" class="agent-pfp">
+                        <!-- [FIX #1] - Corrected the image source URL -->
+                        <img src="https://raw.githubusercontent.com/Abhijitsaman/My-LIC-Manager/main/agent_profile.png" alt="Agent Profile Picture" class="agent-pfp">
                         <div class="agent-intro">
                             <h3>Tapan Kumar Samanta</h3>
                             <p class="tagline">"Securing Your Family's Future, Building Lifelong Trust."</p>
@@ -775,11 +798,21 @@
                 return;
             }
 
-            allPages.forEach(page => page.classList.remove('active'));
+            // [FIX #2 START] - Correctly hide/show pages to prevent content overlap.
+            // This logic directly manipulates the `display` style to override CSS
+            // specificity issues that caused the Agent page content to appear on other screens.
+            allPages.forEach(page => {
+                page.style.display = 'none';
+                page.classList.remove('active'); // Also remove active class for other logic
+            });
+
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
-                targetPage.classList.add('active');
+                // Set the correct display property. 'agent-page' uses 'block', others use 'flex'.
+                targetPage.style.display = (pageId === 'agent-page') ? 'block' : 'flex';
+                targetPage.classList.add('active'); // Re-add 'active' for animations and other selectors
             }
+            // [FIX #2 END]
 
             // Show or hide the main app header based on the active page
             const pagesWithCustomHeader = ['splash-screen', 'welcome-page', 'agent-page'];
@@ -962,7 +995,7 @@
 
             // Restore header
             hamburgerMenuBtn.classList.remove('hidden');
-            deletePolicyBtn.classList.add('hidden');
+            deletePolicyBtn.add('hidden');
             appHeaderTitle.textContent = "Home";
 
             // Show FAB if on home page
