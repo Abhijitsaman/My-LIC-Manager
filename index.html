@@ -62,8 +62,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            min-height: 100dvh; /* Dynamic viewport height for mobile */
+            height: 100vh; /* Changed from min-height as per request */
+            height: 100dvh; /* Dynamic viewport height for mobile */
+            overflow: hidden; /* Lock body scrolling, forcing scroll inside .app-container */
             padding: 0;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
@@ -129,7 +130,8 @@
         
         /* Hide app header on specific pages */
         #splash-screen.active ~ .app-header,
-        #welcome-page.active ~ .app-header {
+        #welcome-page.active ~ .app-header,
+        #agent-page.active ~ .app-header { /* Hide main header on new Agent page */
             display: none;
         }
 
@@ -264,6 +266,143 @@
         #add-policy-fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 8px 25px rgba(0, 90, 156, 0.5); }
         #add-policy-fab.hidden { transform: scale(0); opacity: 0; }
         
+        /* ==========================================================================
+           5a. AGENT PAGE STYLES (NEW)
+           ========================================================================== */
+        #agent-page.page-full { /* More specific selector to ensure padding is removed */
+            padding: 0;
+            background-color: var(--bg-color);
+            display: block; /* Override flex for top-to-bottom layout */
+        }
+        
+        .agent-header {
+            padding: 2rem 1.5rem; /* Increased padding */
+            background: var(--header-bg);
+            color: var(--header-text-color);
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .agent-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .agent-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: -20px; /* Pull content up to overlap with header curve */
+            position: relative;
+            z-index: 5;
+        }
+
+        .agent-profile-summary {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background-color: var(--card-bg-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s;
+        }
+
+        .agent-pfp {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--secondary-color);
+            flex-shrink: 0;
+        }
+
+        .agent-intro { flex-grow: 1; }
+
+        .agent-intro h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-color);
+        }
+
+        .agent-intro .tagline {
+            font-size: 0.85rem;
+            color: var(--text-light-color);
+            margin-bottom: 0.75rem;
+            font-style: italic;
+        }
+
+        .agent-intro .details-toggle {
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .agent-details-collapsible {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .agent-details-collapsible.show {
+            max-height: 1000px; /* A large value to ensure it's bigger than content height */ 
+        }
+
+        .detail-box {
+            background-color: var(--card-bg-color);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .detail-box-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-box ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .detail-box li {
+            font-size: 0.95rem;
+            display: flex;
+            gap: 0.5rem;
+            line-height: 1.5;
+            color: var(--text-color);
+        }
+
+        .detail-box li strong {
+            font-weight: 500;
+            color: var(--text-light-color);
+            width: 110px; /* Aligns the values */
+            flex-shrink: 0;
+        }
+        .detail-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-light-color);
+        }
+
         /* ==========================================================================
            6. NEW: SIDEBAR & DARK MODE
            ========================================================================== */
@@ -417,12 +556,53 @@
                  </div>
             </div>
 
-            <!-- PAGE 5: AGENT (Placeholder) -->
-            <div id="agent-page" class="page">
-                <div class="empty-state">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-                    <h3>Agent Details</h3>
-                    <p>This feature is coming soon!</p>
+            <!-- PAGE 5: AGENT (NEW IMPLEMENTATION) -->
+            <div id="agent-page" class="page page-full">
+                <!-- Blue Header -->
+                <div class="agent-header">
+                    <h2>Trusted LIC Agent</h2>
+                </div>
+
+                <div class="agent-content">
+                    <!-- Profile Summary Section -->
+                    <div class="agent-profile-summary">
+                        <img src="https://raw.githubusercontent.com/YourGitHubUsername/YourRepoName/main/agent_profile.png" alt="Agent Profile Picture" class="agent-pfp">
+                        <div class="agent-intro">
+                            <h3>Tapan Kumar Samanta</h3>
+                            <p class="tagline">"Securing Your Family's Future, Building Lifelong Trust."</p>
+                            <button class="details-toggle" id="toggle-agent-details">Contact & Details</button>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Details Section -->
+                    <div class="agent-details-collapsible" id="agent-details-container">
+                        <!-- Agent Profile Box -->
+                        <div class="detail-box">
+                            <h4 class="detail-box-title">Agent Profile</h4>
+                            <ul>
+                                <li><strong>Name:</strong> <span>Tapan Kumar Samanta</span></li>
+                                <li><strong>Address:</strong> <span>West Bengal, Purba Medinipur, PIN - 721626</span></li>
+                                <li><strong>Branch:</strong> <span>Haldia Branch</span></li>
+                                <li><strong>Membership:</strong> <span>DM's Club Member</span></li>
+                                <li><strong>Contact No:</strong> <span>8640870937</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Experience & Achievements Box -->
+                        <div class="detail-box">
+                            <h4 class="detail-box-title">Experience & Achievements</h4>
+                            <ul>
+                                <li><strong>Experience:</strong> <span>Over 15 Years of dedicated service in financial planning.</span></li>
+                                <li><strong>Achievements:</strong> <span>Proud recipient of more than 5 prestigious trophies for outstanding performance and customer satisfaction.</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Commitment Box -->
+                        <div class="detail-box">
+                            <h4 class="detail-box-title">My Commitment to You</h4>
+                            <p>"Your financial security is my top priority. Whether you're planning for your child's future, your retirement, or simply looking for the best protection for your family, I am here to provide honest, transparent, and personalized advice. For any assistance regarding your new or existing LIC policies, please don't hesitate to reach out. I am available 24/7 to support you and ensure your peace of mind."</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -453,7 +633,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 <span>Home</span>
             </button>
-            <button class="nav-item" data-page="agent-page" disabled>
+            <button class="nav-item" data-page="agent-page">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
                 <span>Agent</span>
             </button>
@@ -576,6 +756,10 @@
         const deletePolicyModal = document.getElementById('delete-policy-modal');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        
+        // Agent Page element selectors (NEW)
+        const toggleAgentDetailsBtn = document.getElementById('toggle-agent-details');
+        const agentDetailsContainer = document.getElementById('agent-details-container');
 
 
         // --- 3. CORE APP LOGIC: NAVIGATION & PAGE MANAGEMENT ---
@@ -597,13 +781,19 @@
                 targetPage.classList.add('active');
             }
 
-            // Update header title based on page
-            const pageTitles = {
-                'home-page': 'Home', 'add-policy-page': 'Add New Policy',
-                'agent-page': 'Agent Details', 'overview-page': 'Policy Details',
-                'profile-page': 'Profile'
-            };
-            appHeaderTitle.textContent = pageTitles[pageId] || 'My LIC Manager';
+            // Show or hide the main app header based on the active page
+            const pagesWithCustomHeader = ['splash-screen', 'welcome-page', 'agent-page'];
+            if (pagesWithCustomHeader.includes(pageId)) {
+                appHeader.style.display = 'none';
+            } else {
+                appHeader.style.display = 'flex';
+                // Update header title for pages with the main header
+                const pageTitles = {
+                    'home-page': 'Home', 'add-policy-page': 'Add New Policy',
+                    'overview-page': 'Policy Details', 'profile-page': 'Profile'
+                };
+                appHeaderTitle.textContent = pageTitles[pageId] || 'My LIC Manager';
+            }
 
             navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageId));
             
@@ -670,7 +860,6 @@
                     fetchAndRenderPolicies(user.uid);
                     renderProfilePage(user);
                     
-                    appHeader.style.display = 'flex';
                     bottomNav.style.display = 'flex';
                     navigationStack = ['home-page'];
                     showPage('home-page', false);
@@ -940,6 +1129,13 @@
 
         addPolicyFab.addEventListener('click', () => showPage('add-policy-page'));
         cancelAddPolicyBtn.addEventListener('click', () => history.back());
+
+        // Agent Page details toggle listener (NEW)
+        if (toggleAgentDetailsBtn) {
+            toggleAgentDetailsBtn.addEventListener('click', () => {
+                agentDetailsContainer.classList.toggle('show');
+            });
+        }
       });
     </script>
 </body>
